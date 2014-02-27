@@ -19,7 +19,7 @@ You'll learn how to use the Arduino as a factory for programming microcontroller
 Removing the training wheel -- your microcontroller projects will be limited only by your imagination
 
 
-## Projects you'll create in this class:
+# Projects you'll create in this class:
 
 because of the faster execution time, a host of RF projects becomes possible:
 
