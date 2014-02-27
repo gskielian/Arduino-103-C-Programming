@@ -202,7 +202,7 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 AVRDUDE_PROGRAMMER = arduino
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/tty.usbmodem1421
+AVRDUDE_PORT = /dev/ttyACM0
 #AVRDUDE_PORT = lpt1
 #AVRDUDE_PORT = COM1
 
