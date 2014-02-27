@@ -34,11 +34,13 @@ Tesla Coil
 create a tesla coil using the arduino as an oscillator.
 
 
-Quadracopter Controller
------------------------
+Underwater Robot Controller
+-----------------------------
 
-Learn to create pulse-per-minute trains and control a Quadracopter.
+Learn to create pulse-per-minute trains and to control an Underwater Robot.
 
+Introduction to Brushless Outrunner motors -- students will find this a good introductory
+course for the Quadracopter Control Course.
 
 
 The ATTiny
