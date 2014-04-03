@@ -1,0 +1,243 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	appendSerial
+  18               	appendSerial:
+  19               	.LFB7:
+  20               	.LM1:
+  21               	.LVL0:
+  22               	/* prologue: function */
+  23               	/* frame size = 0 */
+  24               	/* stack size = 0 */
+  25               	.L__stack_usage = 0
+  26               	.LM2:
+  27 0000 9091 0000 		lds r25,serialWritePos
+  28 0004 E92F      		mov r30,r25
+  29 0006 F0E0      		ldi r31,lo8(0)
+  30 0008 E050      		subi r30,lo8(-(serialBuffer))
+  31 000a F040      		sbci r31,hi8(-(serialBuffer))
+  32 000c 8083      		st Z,r24
+  33               	.LM3:
+  34 000e 9F5F      		subi r25,lo8(-(1))
+  35 0010 9093 0000 		sts serialWritePos,r25
+  36               	.LM4:
+  37 0014 97FF      		sbrs r25,7
+  38 0016 00C0      		rjmp .L1
+  39               	.LM5:
+  40 0018 1092 0000 		sts serialWritePos,__zero_reg__
+  41               	.L1:
+  42 001c 0895      		ret
+  43               	.LFE7:
+  45               	.global	__vector_20
+  47               	__vector_20:
+  48               	.LFB8:
+  49               	.LM6:
+  50 001e 1F92      		push __zero_reg__
+  51 0020 0F92      		push r0
+  52 0022 0FB6      		in r0,__SREG__
+  53 0024 0F92      		push r0
+  54 0026 1124      		clr __zero_reg__
+  55 0028 8F93      		push r24
+  56 002a 9F93      		push r25
+  57 002c EF93      		push r30
+  58 002e FF93      		push r31
+  59               	/* prologue: Signal */
+  60               	/* frame size = 0 */
+  61               	/* stack size = 7 */
+  62               	.L__stack_usage = 7
+  63               	.LM7:
+  64 0030 8091 0000 		lds r24,serialReadPos
+  65 0034 9091 0000 		lds r25,serialWritePos
+  66 0038 8917      		cp r24,r25
+  67 003a 01F0      		breq .L3
+  68               	.LM8:
+  69 003c E82F      		mov r30,r24
+  70 003e F0E0      		ldi r31,lo8(0)
+  71 0040 E050      		subi r30,lo8(-(serialBuffer))
+  72 0042 F040      		sbci r31,hi8(-(serialBuffer))
+  73 0044 9081      		ld r25,Z
+  74 0046 9093 C600 		sts 198,r25
+  75               	.LM9:
+  76 004a 8F5F      		subi r24,lo8(-(1))
+  77 004c 8093 0000 		sts serialReadPos,r24
+  78               	.LM10:
+  79 0050 87FF      		sbrs r24,7
+  80 0052 00C0      		rjmp .L3
+  81               	.LM11:
+  82 0054 1092 0000 		sts serialReadPos,__zero_reg__
+  83               	.L3:
+  84               	/* epilogue start */
+  85               	.LM12:
+  86 0058 FF91      		pop r31
+  87 005a EF91      		pop r30
+  88 005c 9F91      		pop r25
+  89 005e 8F91      		pop r24
+  90 0060 0F90      		pop r0
+  91 0062 0FBE      		out __SREG__,r0
+  92 0064 0F90      		pop r0
+  93 0066 1F90      		pop __zero_reg__
+  94 0068 1895      		reti
+  95               	.LFE8:
+  97               	.global	serialWrite
+  99               	serialWrite:
+ 100               	.LFB9:
+ 101               	.LM13:
+ 102               	.LVL1:
+ 103 006a EF92      		push r14
+ 104 006c FF92      		push r15
+ 105 006e 1F93      		push r17
+ 106 0070 CF93      		push r28
+ 107 0072 DF93      		push r29
+ 108               	/* prologue: function */
+ 109               	/* frame size = 0 */
+ 110               	/* stack size = 5 */
+ 111               	.L__stack_usage = 5
+ 112 0074 EC01      		movw r28,r24
+ 113               	.LVL2:
+ 114               	.LBB4:
+ 115               	.LM14:
+ 116 0076 10E0      		ldi r17,lo8(0)
+ 117 0078 00C0      		rjmp .L6
+ 118               	.LVL3:
+ 119               	.L7:
+ 120               	.LM15:
+ 121 007a 8C0F      		add r24,r28
+ 122 007c 9D1F      		adc r25,r29
+ 123 007e FC01      		movw r30,r24
+ 124 0080 8081      		ld r24,Z
+ 125 0082 0E94 0000 		call appendSerial
+ 126               	.LM16:
+ 127 0086 1F5F      		subi r17,lo8(-(1))
+ 128               	.LVL4:
+ 129               	.L6:
+ 130               	.LM17:
+ 131 0088 812F      		mov r24,r17
+ 132 008a 90E0      		ldi r25,lo8(0)
+ 133 008c 7E01      		movw r14,r28
+ 134 008e AC2F      		mov r26,r28
+ 135 0090 BF2D      		mov r27,r15
+ 136 0092 FD01      		movw r30,r26
+ 137 0094 0190      		ld __tmp_reg__,Z+
+ 138 0096 0020      		tst __tmp_reg__
+ 139 0098 01F4      		brne .-6
+ 140 009a 3197      		sbiw r30,1
+ 141 009c EA1B      		sub r30,r26
+ 142 009e FB0B      		sbc r31,r27
+ 143 00a0 8E17      		cp r24,r30
+ 144 00a2 9F07      		cpc r25,r31
+ 145 00a4 00F0      		brlo .L7
+ 146               	.LBE4:
+ 147               	.LM18:
+ 148 00a6 8091 C000 		lds r24,192
+ 149 00aa 85FF      		sbrs r24,5
+ 150 00ac 00C0      		rjmp .L5
+ 151               	.LM19:
+ 152 00ae 1092 C600 		sts 198,__zero_reg__
+ 153               	.L5:
+ 154               	/* epilogue start */
+ 155               	.LM20:
+ 156 00b2 DF91      		pop r29
+ 157 00b4 CF91      		pop r28
+ 158               	.LVL5:
+ 159 00b6 1F91      		pop r17
+ 160               	.LVL6:
+ 161 00b8 FF90      		pop r15
+ 162 00ba EF90      		pop r14
+ 163               	.LVL7:
+ 164 00bc 0895      		ret
+ 165               	.LFE9:
+ 167               		.data
+ 168               	.LC0:
+ 169 0000 4845 4C4C 		.string	"HELLO\n\r"
+ 169      4F0A 0D00 
+ 170               	.LC1:
+ 171 0008 576F 726C 		.string	"World\n\r"
+ 171      640A 0D00 
+ 172               	.LC2:
+ 173 0010 476F 6F64 		.string	"Goodbye\n\r"
+ 173      6279 650A 
+ 173      0D00 
+ 174               		.text
+ 175               	.global	main
+ 177               	main:
+ 178               	.LFB6:
+ 179               	.LM21:
+ 180               	/* prologue: function */
+ 181               	/* frame size = 0 */
+ 182               	/* stack size = 0 */
+ 183               	.L__stack_usage = 0
+ 184               	.LM22:
+ 185 00be 1092 C500 		sts 197,__zero_reg__
+ 186               	.LM23:
+ 187 00c2 87E6      		ldi r24,lo8(103)
+ 188 00c4 8093 C400 		sts 196,r24
+ 189               	.LM24:
+ 190 00c8 88E4      		ldi r24,lo8(72)
+ 191 00ca 8093 C100 		sts 193,r24
+ 192               	.LM25:
+ 193 00ce 86E0      		ldi r24,lo8(6)
+ 194 00d0 8093 C200 		sts 194,r24
+ 195               	.LM26:
+ 196               	/* #APP */
+ 197               	 ;  41 "main.c" 1
+ 198 00d4 7894      		sei
+ 199               	 ;  0 "" 2
+ 200               	.LM27:
+ 201               	/* #NOAPP */
+ 202 00d6 80E0      		ldi r24,lo8(.LC0)
+ 203 00d8 90E0      		ldi r25,hi8(.LC0)
+ 204 00da 0E94 0000 		call serialWrite
+ 205               	.LM28:
+ 206 00de 80E0      		ldi r24,lo8(.LC1)
+ 207 00e0 90E0      		ldi r25,hi8(.LC1)
+ 208 00e2 0E94 0000 		call serialWrite
+ 209               	.LVL8:
+ 210               	.LBB5:
+ 211               	.LBB6:
+ 212               	.LM29:
+ 213 00e6 8FEF      		 ldi r24,lo8(4799999)
+ 214 00e8 9DE3      	    ldi r25,hi8(4799999)
+ 215 00ea A9E4      	    ldi r26,hlo8(4799999)
+ 216 00ec 8150      	    1:subi r24,1
+ 217 00ee 9040      	    sbci r25,0
+ 218 00f0 A040      	    sbci r26,0
+ 219 00f2 01F4      	    brne 1b
+ 220 00f4 00C0      		rjmp .
+ 221 00f6 0000      		nop
+ 222               	.LBE6:
+ 223               	.LBE5:
+ 224               	.LM30:
+ 225 00f8 80E0      		ldi r24,lo8(.LC2)
+ 226 00fa 90E0      		ldi r25,hi8(.LC2)
+ 227 00fc 0E94 0000 		call serialWrite
+ 228               	.L10:
+ 229 0100 00C0      		rjmp .L10
+ 230               	.LFE6:
+ 232               		.comm serialBuffer,128,1
+ 233               		.comm serialReadPos,1,1
+ 234               		.comm serialWritePos,1,1
+ 283               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccBawJBT.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccBawJBT.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccBawJBT.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccBawJBT.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccBawJBT.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccBawJBT.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccBawJBT.s:18     .text:0000000000000000 appendSerial
+                            *COM*:0000000000000001 serialWritePos
+                            *COM*:0000000000000080 serialBuffer
+     /tmp/ccBawJBT.s:47     .text:000000000000001e __vector_20
+                            *COM*:0000000000000001 serialReadPos
+     /tmp/ccBawJBT.s:99     .text:000000000000006a serialWrite
+     /tmp/ccBawJBT.s:177    .text:00000000000000be main
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss

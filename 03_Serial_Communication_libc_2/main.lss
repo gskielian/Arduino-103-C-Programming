@@ -1,0 +1,311 @@
+
+main.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         0000001a  00800100  000001ac  00000240  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         000001ac  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .bss          00000082  0080011a  0080011a  0000025a  2**0
+                  ALLOC
+  3 .stab         000006cc  00000000  00000000  0000025c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  4 .stabstr      00000054  00000000  00000000  00000928  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_aranges 00000020  00000000  00000000  0000097c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_pubnames 00000082  00000000  00000000  0000099c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_info   0000021c  00000000  00000000  00000a1e  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_abbrev 00000163  00000000  00000000  00000c3a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_line   000001bb  00000000  00000000  00000d9d  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_frame  00000050  00000000  00000000  00000f58  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_str    0000014b  00000000  00000000  00000fa8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 12 .debug_loc    00000072  00000000  00000000  000010f3  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 13 .debug_pubtypes 00000038  00000000  00000000  00001165  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 34 00 	jmp	0x68	; 0x68 <__ctors_end>
+   4:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+   8:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+   c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  10:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  14:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  18:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  1c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  20:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  24:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  28:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  2c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  30:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  34:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  38:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  3c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  40:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  44:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  48:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  4c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  50:	0c 94 62 00 	jmp	0xc4	; 0xc4 <__vector_20>
+  54:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  58:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  5c:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  60:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+  64:	0c 94 51 00 	jmp	0xa2	; 0xa2 <__bad_interrupt>
+
+00000068 <__ctors_end>:
+  68:	11 24       	eor	r1, r1
+  6a:	1f be       	out	0x3f, r1	; 63
+  6c:	cf ef       	ldi	r28, 0xFF	; 255
+  6e:	d8 e0       	ldi	r29, 0x08	; 8
+  70:	de bf       	out	0x3e, r29	; 62
+  72:	cd bf       	out	0x3d, r28	; 61
+
+00000074 <__do_copy_data>:
+  74:	11 e0       	ldi	r17, 0x01	; 1
+  76:	a0 e0       	ldi	r26, 0x00	; 0
+  78:	b1 e0       	ldi	r27, 0x01	; 1
+  7a:	ec ea       	ldi	r30, 0xAC	; 172
+  7c:	f1 e0       	ldi	r31, 0x01	; 1
+  7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
+  80:	05 90       	lpm	r0, Z+
+  82:	0d 92       	st	X+, r0
+  84:	aa 31       	cpi	r26, 0x1A	; 26
+  86:	b1 07       	cpc	r27, r17
+  88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
+
+0000008a <__do_clear_bss>:
+  8a:	11 e0       	ldi	r17, 0x01	; 1
+  8c:	aa e1       	ldi	r26, 0x1A	; 26
+  8e:	b1 e0       	ldi	r27, 0x01	; 1
+  90:	01 c0       	rjmp	.+2      	; 0x94 <.do_clear_bss_start>
+
+00000092 <.do_clear_bss_loop>:
+  92:	1d 92       	st	X+, r1
+
+00000094 <.do_clear_bss_start>:
+  94:	ac 39       	cpi	r26, 0x9C	; 156
+  96:	b1 07       	cpc	r27, r17
+  98:	e1 f7       	brne	.-8      	; 0x92 <.do_clear_bss_loop>
+  9a:	0e 94 b2 00 	call	0x164	; 0x164 <main>
+  9e:	0c 94 d4 00 	jmp	0x1a8	; 0x1a8 <_exit>
+
+000000a2 <__bad_interrupt>:
+  a2:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+000000a6 <appendSerial>:
+  }
+}
+
+
+void appendSerial(char c) {
+  serialBuffer[serialWritePos] = c;
+  a6:	90 91 9b 01 	lds	r25, 0x019B
+  aa:	e9 2f       	mov	r30, r25
+  ac:	f0 e0       	ldi	r31, 0x00	; 0
+  ae:	e5 5e       	subi	r30, 0xE5	; 229
+  b0:	fe 4f       	sbci	r31, 0xFE	; 254
+  b2:	80 83       	st	Z, r24
+  serialWritePos++;
+  b4:	9f 5f       	subi	r25, 0xFF	; 255
+  b6:	90 93 9b 01 	sts	0x019B, r25
+  if(serialWritePos >= TX_BUFFER_SIZE)
+  ba:	97 ff       	sbrs	r25, 7
+  bc:	02 c0       	rjmp	.+4      	; 0xc2 <appendSerial+0x1c>
+  {
+    serialWritePos = 0;
+  be:	10 92 9b 01 	sts	0x019B, r1
+  c2:	08 95       	ret
+
+000000c4 <__vector_20>:
+
+//works off Bit 6 Transmit complete TXCN
+
+
+// need to set TXCIE0  in order to use that Vector
+ISR(USART_TX_vect) { //interrupt vector is USART_TX_vect works off transmit complete
+  c4:	1f 92       	push	r1
+  c6:	0f 92       	push	r0
+  c8:	0f b6       	in	r0, 0x3f	; 63
+  ca:	0f 92       	push	r0
+  cc:	11 24       	eor	r1, r1
+  ce:	8f 93       	push	r24
+  d0:	9f 93       	push	r25
+  d2:	ef 93       	push	r30
+  d4:	ff 93       	push	r31
+  if(serialReadPos != serialWritePos)
+  d6:	80 91 1a 01 	lds	r24, 0x011A
+  da:	90 91 9b 01 	lds	r25, 0x019B
+  de:	89 17       	cp	r24, r25
+  e0:	71 f0       	breq	.+28     	; 0xfe <__vector_20+0x3a>
+  {
+    UDR0 = serialBuffer[serialReadPos];
+  e2:	e8 2f       	mov	r30, r24
+  e4:	f0 e0       	ldi	r31, 0x00	; 0
+  e6:	e5 5e       	subi	r30, 0xE5	; 229
+  e8:	fe 4f       	sbci	r31, 0xFE	; 254
+  ea:	90 81       	ld	r25, Z
+  ec:	90 93 c6 00 	sts	0x00C6, r25
+    serialReadPos++;
+  f0:	8f 5f       	subi	r24, 0xFF	; 255
+  f2:	80 93 1a 01 	sts	0x011A, r24
+
+      if(serialReadPos >= TX_BUFFER_SIZE)
+  f6:	87 ff       	sbrs	r24, 7
+  f8:	02 c0       	rjmp	.+4      	; 0xfe <__vector_20+0x3a>
+      {
+        serialReadPos=0;
+  fa:	10 92 1a 01 	sts	0x011A, r1
+      }
+  }
+}
+  fe:	ff 91       	pop	r31
+ 100:	ef 91       	pop	r30
+ 102:	9f 91       	pop	r25
+ 104:	8f 91       	pop	r24
+ 106:	0f 90       	pop	r0
+ 108:	0f be       	out	0x3f, r0	; 63
+ 10a:	0f 90       	pop	r0
+ 10c:	1f 90       	pop	r1
+ 10e:	18 95       	reti
+
+00000110 <serialWrite>:
+
+
+void serialWrite(char c[]) {
+ 110:	ef 92       	push	r14
+ 112:	ff 92       	push	r15
+ 114:	1f 93       	push	r17
+ 116:	cf 93       	push	r28
+ 118:	df 93       	push	r29
+ 11a:	ec 01       	movw	r28, r24
+  for(uint8_t i = 0; i < strlen(c); i++)
+ 11c:	10 e0       	ldi	r17, 0x00	; 0
+ 11e:	07 c0       	rjmp	.+14     	; 0x12e <serialWrite+0x1e>
+  {
+    appendSerial(c[i]);
+ 120:	8c 0f       	add	r24, r28
+ 122:	9d 1f       	adc	r25, r29
+ 124:	fc 01       	movw	r30, r24
+ 126:	80 81       	ld	r24, Z
+ 128:	0e 94 53 00 	call	0xa6	; 0xa6 <appendSerial>
+  }
+}
+
+
+void serialWrite(char c[]) {
+  for(uint8_t i = 0; i < strlen(c); i++)
+ 12c:	1f 5f       	subi	r17, 0xFF	; 255
+ 12e:	81 2f       	mov	r24, r17
+ 130:	90 e0       	ldi	r25, 0x00	; 0
+ 132:	7e 01       	movw	r14, r28
+ 134:	ac 2f       	mov	r26, r28
+ 136:	bf 2d       	mov	r27, r15
+ 138:	fd 01       	movw	r30, r26
+ 13a:	01 90       	ld	r0, Z+
+ 13c:	00 20       	and	r0, r0
+ 13e:	e9 f7       	brne	.-6      	; 0x13a <serialWrite+0x2a>
+ 140:	31 97       	sbiw	r30, 0x01	; 1
+ 142:	ea 1b       	sub	r30, r26
+ 144:	fb 0b       	sbc	r31, r27
+ 146:	8e 17       	cp	r24, r30
+ 148:	9f 07       	cpc	r25, r31
+ 14a:	50 f3       	brcs	.-44     	; 0x120 <serialWrite+0x10>
+  {
+    appendSerial(c[i]);
+  }
+
+  if(UCSR0A & (1 << UDRE0)) //in control register a flag indicated if UDRn is ready to receive new data, if so then we send it a character 0 in order to reset everthing
+ 14c:	80 91 c0 00 	lds	r24, 0x00C0
+ 150:	85 ff       	sbrs	r24, 5
+ 152:	02 c0       	rjmp	.+4      	; 0x158 <serialWrite+0x48>
+  {
+    UDR0 = 0;
+ 154:	10 92 c6 00 	sts	0x00C6, r1
+  }
+}
+ 158:	df 91       	pop	r29
+ 15a:	cf 91       	pop	r28
+ 15c:	1f 91       	pop	r17
+ 15e:	ff 90       	pop	r15
+ 160:	ef 90       	pop	r14
+ 162:	08 95       	ret
+
+00000164 <main>:
+//additional methods
+void appendSerial(char c);
+void serialWrite(char c[]);
+
+int main(void) {
+  UBRR0H = (BRC >> 8); //gets shifted into the upper bytess
+ 164:	10 92 c5 00 	sts	0x00C5, r1
+  UBRR0L = BRC;        // puts it into the lower register
+ 168:	87 e6       	ldi	r24, 0x67	; 103
+ 16a:	80 93 c4 00 	sts	0x00C4, r24
+  //
+  //there are three uart control registers A, B, C
+  //
+  //SETTING UP B
+  //B has the transmitter enable
+  UCSR0B = (1 << TXEN0) | (1 << TXCIE0); //need the second one for the USART_TX_vect
+ 16e:	88 e4       	ldi	r24, 0x48	; 72
+ 170:	80 93 c1 00 	sts	0x00C1, r24
+
+  //SETTING UP C
+  //we will need to set up the character size
+  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+ 174:	86 e0       	ldi	r24, 0x06	; 6
+ 176:	80 93 c2 00 	sts	0x00C2, r24
+
+  //Data Register UDR0 == USART I/O Data Register n
+  //once you place data into this register it already starts transmitting
+
+  sei();
+ 17a:	78 94       	sei
+
+  serialWrite("HELLO\n\r");
+ 17c:	80 e0       	ldi	r24, 0x00	; 0
+ 17e:	91 e0       	ldi	r25, 0x01	; 1
+ 180:	0e 94 88 00 	call	0x110	; 0x110 <serialWrite>
+  serialWrite("World\n\r");
+ 184:	88 e0       	ldi	r24, 0x08	; 8
+ 186:	91 e0       	ldi	r25, 0x01	; 1
+ 188:	0e 94 88 00 	call	0x110	; 0x110 <serialWrite>
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 18c:	8f ef       	ldi	r24, 0xFF	; 255
+ 18e:	9d e3       	ldi	r25, 0x3D	; 61
+ 190:	a9 e4       	ldi	r26, 0x49	; 73
+ 192:	81 50       	subi	r24, 0x01	; 1
+ 194:	90 40       	sbci	r25, 0x00	; 0
+ 196:	a0 40       	sbci	r26, 0x00	; 0
+ 198:	e1 f7       	brne	.-8      	; 0x192 <main+0x2e>
+ 19a:	00 c0       	rjmp	.+0      	; 0x19c <main+0x38>
+ 19c:	00 00       	nop
+
+  _delay_ms(1500);
+
+  serialWrite("Goodbye\n\r");
+ 19e:	80 e1       	ldi	r24, 0x10	; 16
+ 1a0:	91 e0       	ldi	r25, 0x01	; 1
+ 1a2:	0e 94 88 00 	call	0x110	; 0x110 <serialWrite>
+ 1a6:	ff cf       	rjmp	.-2      	; 0x1a6 <main+0x42>
+
+000001a8 <_exit>:
+ 1a8:	f8 94       	cli
+
+000001aa <__stop_program>:
+ 1aa:	ff cf       	rjmp	.-2      	; 0x1aa <__stop_program>

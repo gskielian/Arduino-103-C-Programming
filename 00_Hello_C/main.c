@@ -1,17 +1,6 @@
-/*
-    5-10-07
-    Copyright Spark Fun Electronics� 2007
-    Nathan Seidle
-    nathan at sparkfun.com
-    
-    ATmega168
-	
-	Example Blink
-	Toggles all IO pins at 1Hz
-*/
-
 #include <avr/delay.h>
 #include <avr/io.h>
+
 
 //Define functions
 //======================
