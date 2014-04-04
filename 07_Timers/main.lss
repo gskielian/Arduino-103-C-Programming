@@ -1,0 +1,168 @@
+
+main.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000f0  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .bss          00000002  00800100  00800100  00000164  2**0
+                  ALLOC
+  2 .stab         000006cc  00000000  00000000  00000164  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      00000054  00000000  00000000  00000830  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_aranges 00000020  00000000  00000000  00000884  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_pubnames 00000039  00000000  00000000  000008a4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_info   000000b6  00000000  00000000  000008dd  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 00000085  00000000  00000000  00000993  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   000000e8  00000000  00000000  00000a18  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_frame  00000030  00000000  00000000  00000b00  2**2
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_str    000000a1  00000000  00000000  00000b30  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_pubtypes 0000001e  00000000  00000000  00000bd1  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 34 00 	jmp	0x68	; 0x68 <__ctors_end>
+   4:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+   8:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+   c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  10:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  14:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  18:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  1c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  20:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  24:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  28:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  2c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  30:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  34:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  38:	0c 94 54 00 	jmp	0xa8	; 0xa8 <__vector_14>
+  3c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  40:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  44:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  48:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  4c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  50:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  54:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  58:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  5c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  60:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+  64:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
+
+00000068 <__ctors_end>:
+  68:	11 24       	eor	r1, r1
+  6a:	1f be       	out	0x3f, r1	; 63
+  6c:	cf ef       	ldi	r28, 0xFF	; 255
+  6e:	d8 e0       	ldi	r29, 0x08	; 8
+  70:	de bf       	out	0x3e, r29	; 62
+  72:	cd bf       	out	0x3d, r28	; 61
+
+00000074 <__do_clear_bss>:
+  74:	11 e0       	ldi	r17, 0x01	; 1
+  76:	a0 e0       	ldi	r26, 0x00	; 0
+  78:	b1 e0       	ldi	r27, 0x01	; 1
+  7a:	01 c0       	rjmp	.+2      	; 0x7e <.do_clear_bss_start>
+
+0000007c <.do_clear_bss_loop>:
+  7c:	1d 92       	st	X+, r1
+
+0000007e <.do_clear_bss_start>:
+  7e:	a2 30       	cpi	r26, 0x02	; 2
+  80:	b1 07       	cpc	r27, r17
+  82:	e1 f7       	brne	.-8      	; 0x7c <.do_clear_bss_loop>
+  84:	0e 94 48 00 	call	0x90	; 0x90 <main>
+  88:	0c 94 76 00 	jmp	0xec	; 0xec <_exit>
+
+0000008c <__bad_interrupt>:
+  8c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000090 <main>:
+#include <avr/interrupt.h>
+
+int extraTime;
+int main(void) {
+
+  DDRB =   (1 << PORTB0); //sets pin 8 to be an output
+  90:	81 e0       	ldi	r24, 0x01	; 1
+  92:	84 b9       	out	0x04, r24	; 4
+
+  //CTC Mode
+  TCCR0A = (1 << WGM01); //WGM01 sets this for CTC mode
+  94:	82 e0       	ldi	r24, 0x02	; 2
+  96:	84 bd       	out	0x24, r24	; 36
+
+  //OCR0A  Output Compare Register A
+  OCR0A = 195;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  98:	93 ec       	ldi	r25, 0xC3	; 195
+  9a:	97 bd       	out	0x27, r25	; 39
+
+  //TIMSK0 register controls the interrupts-- when this happens I want this interrupt to occu
+  //OCIE0A this bit want interrupt setup so that when compare 'A' is equal it will set up an interrupt
+  TIMSK0 = (1 << OCIE0A);
+  9c:	80 93 6e 00 	sts	0x006E, r24
+
+  // clock select bit prescaler
+  TCCR0B = (1 << CS02) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  a0:	85 e0       	ldi	r24, 0x05	; 5
+  a2:	85 bd       	out	0x25, r24	; 37
+
+  sei(); // sets the i-bit
+  a4:	78 94       	sei
+  a6:	ff cf       	rjmp	.-2      	; 0xa6 <main+0x16>
+
+000000a8 <__vector_14>:
+  while(1) {
+  }
+}
+
+
+ISR(TIMER0_COMPA_vect) {
+  a8:	1f 92       	push	r1
+  aa:	0f 92       	push	r0
+  ac:	0f b6       	in	r0, 0x3f	; 63
+  ae:	0f 92       	push	r0
+  b0:	11 24       	eor	r1, r1
+  b2:	8f 93       	push	r24
+  b4:	9f 93       	push	r25
+  extraTime++;
+  b6:	80 91 00 01 	lds	r24, 0x0100
+  ba:	90 91 01 01 	lds	r25, 0x0101
+  be:	01 96       	adiw	r24, 0x01	; 1
+  c0:	90 93 01 01 	sts	0x0101, r25
+  c4:	80 93 00 01 	sts	0x0100, r24
+  if(extraTime > 100) {
+  c8:	85 36       	cpi	r24, 0x65	; 101
+  ca:	91 05       	cpc	r25, r1
+  cc:	44 f0       	brlt	.+16     	; 0xde <__vector_14+0x36>
+    PORTB ^=  (1 << PORTB0); //toggles an led -- this is really useful!!
+  ce:	85 b1       	in	r24, 0x05	; 5
+  d0:	91 e0       	ldi	r25, 0x01	; 1
+  d2:	89 27       	eor	r24, r25
+  d4:	85 b9       	out	0x05, r24	; 5
+    extraTime = 0;
+  d6:	10 92 01 01 	sts	0x0101, r1
+  da:	10 92 00 01 	sts	0x0100, r1
+  }
+}
+  de:	9f 91       	pop	r25
+  e0:	8f 91       	pop	r24
+  e2:	0f 90       	pop	r0
+  e4:	0f be       	out	0x3f, r0	; 63
+  e6:	0f 90       	pop	r0
+  e8:	1f 90       	pop	r1
+  ea:	18 95       	reti
+
+000000ec <_exit>:
+  ec:	f8 94       	cli
+
+000000ee <__stop_program>:
+  ee:	ff cf       	rjmp	.-2      	; 0xee <__stop_program>

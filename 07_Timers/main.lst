@@ -1,0 +1,99 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	main
+  18               	main:
+  19               	.LFB0:
+  20               	.LM1:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	/* stack size = 0 */
+  24               	.L__stack_usage = 0
+  25               	.LM2:
+  26 0000 81E0      		ldi r24,lo8(1)
+  27 0002 84B9      		out 36-32,r24
+  28               	.LM3:
+  29 0004 82E0      		ldi r24,lo8(2)
+  30 0006 84BD      		out 68-32,r24
+  31               	.LM4:
+  32 0008 93EC      		ldi r25,lo8(-61)
+  33 000a 97BD      		out 71-32,r25
+  34               	.LM5:
+  35 000c 8093 6E00 		sts 110,r24
+  36               	.LM6:
+  37 0010 85E0      		ldi r24,lo8(5)
+  38 0012 85BD      		out 69-32,r24
+  39               	.LM7:
+  40               	/* #APP */
+  41               	 ;  64 "main.c" 1
+  42 0014 7894      		sei
+  43               	 ;  0 "" 2
+  44               	/* #NOAPP */
+  45               	.L2:
+  46 0016 00C0      		rjmp .L2
+  47               	.LFE0:
+  49               	.global	__vector_14
+  51               	__vector_14:
+  52               	.LFB1:
+  53               	.LM8:
+  54 0018 1F92      		push __zero_reg__
+  55 001a 0F92      		push r0
+  56 001c 0FB6      		in r0,__SREG__
+  57 001e 0F92      		push r0
+  58 0020 1124      		clr __zero_reg__
+  59 0022 8F93      		push r24
+  60 0024 9F93      		push r25
+  61               	/* prologue: Signal */
+  62               	/* frame size = 0 */
+  63               	/* stack size = 5 */
+  64               	.L__stack_usage = 5
+  65               	.LM9:
+  66 0026 8091 0000 		lds r24,extraTime
+  67 002a 9091 0000 		lds r25,extraTime+1
+  68 002e 0196      		adiw r24,1
+  69 0030 9093 0000 		sts extraTime+1,r25
+  70 0034 8093 0000 		sts extraTime,r24
+  71               	.LM10:
+  72 0038 8536      		cpi r24,101
+  73 003a 9105      		cpc r25,__zero_reg__
+  74 003c 04F0      		brlt .L3
+  75               	.LM11:
+  76 003e 85B1      		in r24,37-32
+  77 0040 91E0      		ldi r25,lo8(1)
+  78 0042 8927      		eor r24,r25
+  79 0044 85B9      		out 37-32,r24
+  80               	.LM12:
+  81 0046 1092 0000 		sts extraTime+1,__zero_reg__
+  82 004a 1092 0000 		sts extraTime,__zero_reg__
+  83               	.L3:
+  84               	/* epilogue start */
+  85               	.LM13:
+  86 004e 9F91      		pop r25
+  87 0050 8F91      		pop r24
+  88 0052 0F90      		pop r0
+  89 0054 0FBE      		out __SREG__,r0
+  90 0056 0F90      		pop r0
+  91 0058 1F90      		pop __zero_reg__
+  92 005a 1895      		reti
+  93               	.LFE1:
+  95               		.comm extraTime,2,1
+ 128               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccoa7sLz.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccoa7sLz.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccoa7sLz.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccoa7sLz.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccoa7sLz.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccoa7sLz.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccoa7sLz.s:18     .text:0000000000000000 main
+     /tmp/ccoa7sLz.s:51     .text:0000000000000018 __vector_14
+                            *COM*:0000000000000002 extraTime
+
+UNDEFINED SYMBOLS
+__do_clear_bss
