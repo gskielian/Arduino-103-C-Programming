@@ -42,6 +42,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 int extraTime;
 int main(void) {
@@ -54,15 +55,55 @@ int main(void) {
   //OCR0A  Output Compare Register A
   OCR0A = 195;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
 
+//TCCR0B = (1 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+
   //TIMSK0 register controls the interrupts-- when this happens I want this interrupt to occu
   //OCIE0A this bit want interrupt setup so that when compare 'A' is equal it will set up an interrupt
   TIMSK0 = (1 << OCIE0A);
 
   // clock select bit prescaler
-  TCCR0B = (1 << CS02) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
 
   sei(); // sets the i-bit
   while(1) {
+  //OCR0A  Output Compare Register A
+  //
+  TCCR0B =  (1 << CS02) | (0 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  int i;
+  for (i = 255; i > 0 ; i--) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(500);
+  }
+  /*
+  for (i = 0; i < 255 ; i++) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(100);
+  }
+  */
+
+  TCCR0B =  (1 << CS02) | (0 << CS01) | (0 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+
+//----------------------------------------------------------
+//                        ROUND 2
+//----------------------------------------------------------
+
+  for (i = 255; i > 0 ; i--) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(500);
+  }
+
+  /*
+  for (i = 0; i < 255 ; i++) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(100);
+  }
+  */
+
+  TCCR0B =  (0 << CS02) | (1 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  for (i = 255; i > 0 ; i--) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(500);
+  }
+
   }
 }
 
