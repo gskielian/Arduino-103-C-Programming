@@ -1,0 +1,107 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	main
+  18               	main:
+  19               	.LFB6:
+  20               	.LM1:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	/* stack size = 0 */
+  24               	.L__stack_usage = 0
+  25               	.LM2:
+  26 0000 81E0      		ldi r24,lo8(1)
+  27 0002 84B9      		out 36-32,r24
+  28               	.LM3:
+  29 0004 82E0      		ldi r24,lo8(2)
+  30 0006 84BD      		out 68-32,r24
+  31               	.LM4:
+  32 0008 93EC      		ldi r25,lo8(-61)
+  33 000a 97BD      		out 71-32,r25
+  34               	.LM5:
+  35 000c 8093 6E00 		sts 110,r24
+  36               	.LM6:
+  37               	/* #APP */
+  38               	 ;  67 "main.c" 1
+  39 0010 7894      		sei
+  40               	 ;  0 "" 2
+  41               	.LM7:
+  42               	/* #NOAPP */
+  43 0012 91E0      		ldi r25,lo8(1)
+  44               	.L3:
+  45 0014 95BD      		out 69-32,r25
+  46               	.LVL0:
+  47 0016 8FEF      		ldi r24,lo8(-1)
+  48               	.LVL1:
+  49               	.L2:
+  50               	.LM8:
+  51 0018 87BD      		out 71-32,r24
+  52               	.LVL2:
+  53               	.LBB4:
+  54               	.LBB5:
+  55               	.LM9:
+  56 001a EFE3      		 ldi r30,lo8(-25537)
+  57 001c FCE9      	    ldi r31,hi8(-25537)
+  58 001e 3197      	    1:sbiw r30,1
+  59 0020 01F4      	    brne 1b
+  60 0022 00C0      		rjmp .
+  61 0024 0000      		nop
+  62 0026 8150      		subi r24,lo8(-(-1))
+  63               	.LBE5:
+  64               	.LBE4:
+  65               	.LM10:
+  66 0028 8332      		cpi r24,lo8(35)
+  67 002a 01F4      		brne .L2
+  68 002c 00C0      		rjmp .L3
+  69               	.LFE6:
+  71               	.global	__vector_14
+  73               	__vector_14:
+  74               	.LFB7:
+  75               	.LM11:
+  76 002e 1F92      		push __zero_reg__
+  77 0030 0F92      		push r0
+  78 0032 0FB6      		in r0,__SREG__
+  79 0034 0F92      		push r0
+  80 0036 1124      		clr __zero_reg__
+  81 0038 8F93      		push r24
+  82 003a 9F93      		push r25
+  83               	/* prologue: Signal */
+  84               	/* frame size = 0 */
+  85               	/* stack size = 5 */
+  86               	.L__stack_usage = 5
+  87               	.LM12:
+  88 003c 85B1      		in r24,37-32
+  89 003e 91E0      		ldi r25,lo8(1)
+  90 0040 8927      		eor r24,r25
+  91 0042 85B9      		out 37-32,r24
+  92               	/* epilogue start */
+  93               	.LM13:
+  94 0044 9F91      		pop r25
+  95 0046 8F91      		pop r24
+  96 0048 0F90      		pop r0
+  97 004a 0FBE      		out __SREG__,r0
+  98 004c 0F90      		pop r0
+  99 004e 1F90      		pop __zero_reg__
+ 100 0050 1895      		reti
+ 101               	.LFE7:
+ 103               		.comm extraTime,2,1
+ 136               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccuRsdgo.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccuRsdgo.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccuRsdgo.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccuRsdgo.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccuRsdgo.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccuRsdgo.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccuRsdgo.s:18     .text:0000000000000000 main
+     /tmp/ccuRsdgo.s:73     .text:000000000000002e __vector_14
+                            *COM*:0000000000000002 extraTime
+
+UNDEFINED SYMBOLS
+__do_clear_bss
