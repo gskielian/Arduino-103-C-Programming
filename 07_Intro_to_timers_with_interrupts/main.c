@@ -88,6 +88,22 @@ int main(void) {
 //----------------------------------------------------------
 //                        ROUND 2
 //----------------------------------------------------------
+  TCCR0B =  (1 << CS02) | (0 << CS01) | (0 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+    OCR0A = 255;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(5000);
+    OCR0A = 1;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(5000);
+  TCCR0B =  (0 << CS02) | (1 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+    OCR0A = 255;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(5000);
+    OCR0A = 1;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(5000);
+    /*
+  for (i = 255; i > 35; i--) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(100);
+  }
+  */
 
   TCCR0B =  (0 << CS02) | (0 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
   for (i = 255; i > 35; i--) {

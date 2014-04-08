@@ -1,5 +1,5 @@
-#define F_CPU 16000000UL
-#define BAUD 9600
+#define F_CPU 8000000UL
+#define BAUD 115200
 #define BRC ((F_CPU/16/BAUD) - 1 )
 
 #include <avr/io.h>

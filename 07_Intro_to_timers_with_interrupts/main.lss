@@ -3,31 +3,31 @@ main.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         000000e6  00000000  00000000  00000074  2**1
+  0 .text         00000140  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .bss          00000002  00800100  00800100  0000015a  2**0
+  1 .bss          00000002  00800100  00800100  000001b4  2**0
                   ALLOC
-  2 .stab         000006cc  00000000  00000000  0000015c  2**2
+  2 .stab         000006cc  00000000  00000000  000001b4  2**2
                   CONTENTS, READONLY, DEBUGGING
-  3 .stabstr      00000054  00000000  00000000  00000828  2**0
+  3 .stabstr      00000054  00000000  00000000  00000880  2**0
                   CONTENTS, READONLY, DEBUGGING
-  4 .debug_aranges 00000020  00000000  00000000  0000087c  2**0
+  4 .debug_aranges 00000020  00000000  00000000  000008d4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_pubnames 00000039  00000000  00000000  0000089c  2**0
+  5 .debug_pubnames 00000039  00000000  00000000  000008f4  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   0000015e  00000000  00000000  000008d5  2**0
+  6 .debug_info   0000025e  00000000  00000000  0000092d  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 00000102  00000000  00000000  00000a33  2**0
+  7 .debug_abbrev 00000113  00000000  00000000  00000b8b  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000012f  00000000  00000000  00000b35  2**0
+  8 .debug_line   000001b7  00000000  00000000  00000c9e  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000030  00000000  00000000  00000c64  2**2
+  9 .debug_frame  00000030  00000000  00000000  00000e58  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    00000116  00000000  00000000  00000c94  2**0
+ 10 .debug_str    00000116  00000000  00000000  00000e88  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    00000015  00000000  00000000  00000daa  2**0
+ 11 .debug_loc    00000015  00000000  00000000  00000f9e  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_pubtypes 00000038  00000000  00000000  00000dbf  2**0
+ 12 .debug_pubtypes 00000038  00000000  00000000  00000fb3  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -47,7 +47,7 @@ Disassembly of section .text:
   2c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   30:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   34:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
-  38:	0c 94 5f 00 	jmp	0xbe	; 0xbe <__vector_14>
+  38:	0c 94 8c 00 	jmp	0x118	; 0x118 <__vector_14>
   3c:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   40:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
   44:	0c 94 46 00 	jmp	0x8c	; 0x8c <__bad_interrupt>
@@ -82,7 +82,7 @@ Disassembly of section .text:
   80:	b1 07       	cpc	r27, r17
   82:	e1 f7       	brne	.-8      	; 0x7c <.do_clear_bss_loop>
   84:	0e 94 48 00 	call	0x90	; 0x90 <main>
-  88:	0c 94 71 00 	jmp	0xe2	; 0xe2 <_exit>
+  88:	0c 94 9e 00 	jmp	0x13c	; 0x13c <_exit>
 
 0000008c <__bad_interrupt>:
   8c:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -119,71 +119,141 @@ int main(void) {
   int i;
   sei(); // sets the i-bit
   a0:	78 94       	sei
+  */
 
 //----------------------------------------------------------
 //                        ROUND 2
 //----------------------------------------------------------
+  TCCR0B =  (1 << CS02) | (0 << CS01) | (0 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  a2:	a4 e0       	ldi	r26, 0x04	; 4
+    OCR0A = 255;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  a4:	2f ef       	ldi	r18, 0xFF	; 255
+    _delay_ms(5000);
+    OCR0A = 1;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  a6:	91 e0       	ldi	r25, 0x01	; 1
+    _delay_ms(5000);
+  TCCR0B =  (0 << CS02) | (1 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  a8:	33 e0       	ldi	r19, 0x03	; 3
+  */
 
-  TCCR0B =  (0 << CS02) | (0 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
-  a2:	91 e0       	ldi	r25, 0x01	; 1
-  a4:	95 bd       	out	0x25, r25	; 37
-  a6:	8f ef       	ldi	r24, 0xFF	; 255
-  for (i = 255; i > 35; i--) {
-    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
-  a8:	87 bd       	out	0x27, r24	; 39
+//----------------------------------------------------------
+//                        ROUND 2
+//----------------------------------------------------------
+  TCCR0B =  (1 << CS02) | (0 << CS01) | (0 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  aa:	a5 bd       	out	0x25, r26	; 37
+    OCR0A = 255;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  ac:	27 bd       	out	0x27, r18	; 39
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-  aa:	ef e3       	ldi	r30, 0x3F	; 63
-  ac:	fc e9       	ldi	r31, 0x9C	; 156
-  ae:	31 97       	sbiw	r30, 0x01	; 1
-  b0:	f1 f7       	brne	.-4      	; 0xae <main+0x1e>
-  b2:	00 c0       	rjmp	.+0      	; 0xb4 <main+0x24>
-  b4:	00 00       	nop
-  b6:	81 50       	subi	r24, 0x01	; 1
-//----------------------------------------------------------
-//                        ROUND 2
-//----------------------------------------------------------
+  ae:	4f ef       	ldi	r20, 0xFF	; 255
+  b0:	53 e2       	ldi	r21, 0x23	; 35
+  b2:	64 ef       	ldi	r22, 0xF4	; 244
+  b4:	41 50       	subi	r20, 0x01	; 1
+  b6:	50 40       	sbci	r21, 0x00	; 0
+  b8:	60 40       	sbci	r22, 0x00	; 0
+  ba:	e1 f7       	brne	.-8      	; 0xb4 <main+0x24>
+  bc:	00 c0       	rjmp	.+0      	; 0xbe <main+0x2e>
+  be:	00 00       	nop
+    _delay_ms(5000);
+    OCR0A = 1;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  c0:	97 bd       	out	0x27, r25	; 39
+  c2:	4f ef       	ldi	r20, 0xFF	; 255
+  c4:	53 e2       	ldi	r21, 0x23	; 35
+  c6:	64 ef       	ldi	r22, 0xF4	; 244
+  c8:	41 50       	subi	r20, 0x01	; 1
+  ca:	50 40       	sbci	r21, 0x00	; 0
+  cc:	60 40       	sbci	r22, 0x00	; 0
+  ce:	e1 f7       	brne	.-8      	; 0xc8 <main+0x38>
+  d0:	00 c0       	rjmp	.+0      	; 0xd2 <main+0x42>
+  d2:	00 00       	nop
+    _delay_ms(5000);
+  TCCR0B =  (0 << CS02) | (1 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  d4:	35 bd       	out	0x25, r19	; 37
+    OCR0A = 255;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  d6:	27 bd       	out	0x27, r18	; 39
+  d8:	4f ef       	ldi	r20, 0xFF	; 255
+  da:	53 e2       	ldi	r21, 0x23	; 35
+  dc:	64 ef       	ldi	r22, 0xF4	; 244
+  de:	41 50       	subi	r20, 0x01	; 1
+  e0:	50 40       	sbci	r21, 0x00	; 0
+  e2:	60 40       	sbci	r22, 0x00	; 0
+  e4:	e1 f7       	brne	.-8      	; 0xde <main+0x4e>
+  e6:	00 c0       	rjmp	.+0      	; 0xe8 <main+0x58>
+  e8:	00 00       	nop
+    _delay_ms(5000);
+    OCR0A = 1;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+  ea:	97 bd       	out	0x27, r25	; 39
+  ec:	4f ef       	ldi	r20, 0xFF	; 255
+  ee:	53 e2       	ldi	r21, 0x23	; 35
+  f0:	64 ef       	ldi	r22, 0xF4	; 244
+  f2:	41 50       	subi	r20, 0x01	; 1
+  f4:	50 40       	sbci	r21, 0x00	; 0
+  f6:	60 40       	sbci	r22, 0x00	; 0
+  f8:	e1 f7       	brne	.-8      	; 0xf2 <main+0x62>
+  fa:	00 c0       	rjmp	.+0      	; 0xfc <main+0x6c>
+  fc:	00 00       	nop
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+    _delay_ms(100);
+  }
+  */
+
+  TCCR0B =  (0 << CS02) | (0 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
+  fe:	95 bd       	out	0x25, r25	; 37
+ 100:	8f ef       	ldi	r24, 0xFF	; 255
+  for (i = 255; i > 35; i--) {
+    OCR0A = i;  //number of ticks we want to go through before resetting, this is the compare, when = it does stuff + resets
+ 102:	87 bd       	out	0x27, r24	; 39
+ 104:	ef e3       	ldi	r30, 0x3F	; 63
+ 106:	fc e9       	ldi	r31, 0x9C	; 156
+ 108:	31 97       	sbiw	r30, 0x01	; 1
+ 10a:	f1 f7       	brne	.-4      	; 0x108 <main+0x78>
+ 10c:	00 c0       	rjmp	.+0      	; 0x10e <main+0x7e>
+ 10e:	00 00       	nop
+ 110:	81 50       	subi	r24, 0x01	; 1
+    _delay_ms(100);
+  }
+  */
 
   TCCR0B =  (0 << CS02) | (0 << CS01) | (1 << CS00); //page 110 of the documentaion  this sets the prescaler to 1024
   for (i = 255; i > 35; i--) {
-  b8:	83 32       	cpi	r24, 0x23	; 35
-  ba:	b1 f7       	brne	.-20     	; 0xa8 <main+0x18>
-  bc:	f3 cf       	rjmp	.-26     	; 0xa4 <main+0x14>
+ 112:	83 32       	cpi	r24, 0x23	; 35
+ 114:	b1 f7       	brne	.-20     	; 0x102 <main+0x72>
+ 116:	c9 cf       	rjmp	.-110    	; 0xaa <main+0x1a>
 
-000000be <__vector_14>:
+00000118 <__vector_14>:
 
   }
 }
 
 
 ISR(TIMER0_COMPA_vect) {
-  be:	1f 92       	push	r1
-  c0:	0f 92       	push	r0
-  c2:	0f b6       	in	r0, 0x3f	; 63
-  c4:	0f 92       	push	r0
-  c6:	11 24       	eor	r1, r1
-  c8:	8f 93       	push	r24
-  ca:	9f 93       	push	r25
+ 118:	1f 92       	push	r1
+ 11a:	0f 92       	push	r0
+ 11c:	0f b6       	in	r0, 0x3f	; 63
+ 11e:	0f 92       	push	r0
+ 120:	11 24       	eor	r1, r1
+ 122:	8f 93       	push	r24
+ 124:	9f 93       	push	r25
     PORTB ^=  (1 << PORTB0); //toggles an led -- this is really useful!!
-  cc:	85 b1       	in	r24, 0x05	; 5
-  ce:	91 e0       	ldi	r25, 0x01	; 1
-  d0:	89 27       	eor	r24, r25
-  d2:	85 b9       	out	0x05, r24	; 5
+ 126:	85 b1       	in	r24, 0x05	; 5
+ 128:	91 e0       	ldi	r25, 0x01	; 1
+ 12a:	89 27       	eor	r24, r25
+ 12c:	85 b9       	out	0x05, r24	; 5
 }
-  d4:	9f 91       	pop	r25
-  d6:	8f 91       	pop	r24
-  d8:	0f 90       	pop	r0
-  da:	0f be       	out	0x3f, r0	; 63
-  dc:	0f 90       	pop	r0
-  de:	1f 90       	pop	r1
-  e0:	18 95       	reti
+ 12e:	9f 91       	pop	r25
+ 130:	8f 91       	pop	r24
+ 132:	0f 90       	pop	r0
+ 134:	0f be       	out	0x3f, r0	; 63
+ 136:	0f 90       	pop	r0
+ 138:	1f 90       	pop	r1
+ 13a:	18 95       	reti
 
-000000e2 <_exit>:
-  e2:	f8 94       	cli
+0000013c <_exit>:
+ 13c:	f8 94       	cli
 
-000000e4 <__stop_program>:
-  e4:	ff cf       	rjmp	.-2      	; 0xe4 <__stop_program>
+0000013e <__stop_program>:
+ 13e:	ff cf       	rjmp	.-2      	; 0x13e <__stop_program>

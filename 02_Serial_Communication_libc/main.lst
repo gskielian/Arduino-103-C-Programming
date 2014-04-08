@@ -1,0 +1,61 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	main
+  18               	main:
+  19               	.LFB6:
+  20               	.LM1:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	/* stack size = 0 */
+  24               	.L__stack_usage = 0
+  25               	.LM2:
+  26 0000 1092 C500 		sts 197,__zero_reg__
+  27               	.LM3:
+  28 0004 83E0      		ldi r24,lo8(3)
+  29 0006 8093 C400 		sts 196,r24
+  30               	.LM4:
+  31 000a 88E0      		ldi r24,lo8(8)
+  32 000c 8093 C100 		sts 193,r24
+  33               	.LM5:
+  34 0010 86E0      		ldi r24,lo8(6)
+  35 0012 8093 C200 		sts 194,r24
+  36               	.LM6:
+  37 0016 88E3      		ldi r24,lo8(56)
+  38               	.L2:
+  39               	.LM7:
+  40 0018 8093 C600 		sts 198,r24
+  41               	.LVL0:
+  42               	.LBB4:
+  43               	.LBB5:
+  44               	.LM8:
+  45 001c 2FEF      		 ldi r18,lo8(1599999)
+  46 001e 39E6      	    ldi r19,hi8(1599999)
+  47 0020 48E1      	    ldi r20,hlo8(1599999)
+  48 0022 2150      	    1:subi r18,1
+  49 0024 3040      	    sbci r19,0
+  50 0026 4040      	    sbci r20,0
+  51 0028 01F4      	    brne 1b
+  52 002a 00C0      		rjmp .
+  53 002c 0000      		nop
+  54 002e 00C0      		rjmp .L2
+  55               	.LBE5:
+  56               	.LBE4:
+  57               	.LFE6:
+  83               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccp3umm3.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/ccp3umm3.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/ccp3umm3.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/ccp3umm3.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/ccp3umm3.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccp3umm3.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccp3umm3.s:18     .text:0000000000000000 main
+
+NO UNDEFINED SYMBOLS

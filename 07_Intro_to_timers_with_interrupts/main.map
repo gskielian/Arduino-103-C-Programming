@@ -121,7 +121,7 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x0000000000000000       0xe6
+.text           0x0000000000000000      0x140
  *(.vectors)
  .vectors       0x0000000000000000       0x68 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/crtm328p.o
                 0x0000000000000000                __vectors
@@ -200,20 +200,20 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
                 0x000000000000008c                __vector_16
                 0x000000000000008c                __vector_18
                 0x000000000000008c                __vector_20
- .text          0x0000000000000090       0x52 main.o
+ .text          0x0000000000000090       0xac main.o
                 0x0000000000000090                main
-                0x00000000000000be                __vector_14
- .text          0x00000000000000e2        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
- .text          0x00000000000000e2        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
-                0x00000000000000e2                . = ALIGN (0x2)
+                0x0000000000000118                __vector_14
+ .text          0x000000000000013c        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+ .text          0x000000000000013c        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
+                0x000000000000013c                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x00000000000000e2        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
- .text.libgcc   0x00000000000000e2        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
-                0x00000000000000e2                . = ALIGN (0x2)
+ .text.libgcc   0x000000000000013c        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x000000000000013c        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
+                0x000000000000013c                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00000000000000e2        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
-                0x00000000000000e2                exit
-                0x00000000000000e2                _exit
+ .fini9         0x000000000000013c        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+                0x000000000000013c                exit
+                0x000000000000013c                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -232,11 +232,11 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00000000000000e2        0x4 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+ .fini0         0x000000000000013c        0x4 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
  *(.fini0)
-                0x00000000000000e6                _etext = .
+                0x0000000000000140                _etext = .
 
-.data           0x0000000000800100        0x0 load address 0x00000000000000e6
+.data           0x0000000000800100        0x0 load address 0x0000000000000140
                 0x0000000000800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x0000000000800100        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/crtm328p.o
@@ -263,8 +263,8 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
  COMMON         0x0000000000800100        0x2 main.o
                 0x0000000000800100                extraTime
                 0x0000000000800102                PROVIDE (__bss_end, .)
-                0x00000000000000e6                __data_load_start = LOADADDR (.data)
-                0x00000000000000e6                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x0000000000000140                __data_load_start = LOADADDR (.data)
+                0x0000000000000140                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0000000000800102        0x0
                 0x0000000000800102                PROVIDE (__noinit_start, .)
@@ -335,18 +335,18 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
  .debug_pubnames
                 0x0000000000000000       0x39 main.o
 
-.debug_info     0x0000000000000000      0x15e
+.debug_info     0x0000000000000000      0x25e
  *(.debug_info)
- .debug_info    0x0000000000000000      0x15e main.o
+ .debug_info    0x0000000000000000      0x25e main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev   0x0000000000000000      0x102
+.debug_abbrev   0x0000000000000000      0x113
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x102 main.o
+ .debug_abbrev  0x0000000000000000      0x113 main.o
 
-.debug_line     0x0000000000000000      0x12f
+.debug_line     0x0000000000000000      0x1b7
  *(.debug_line)
- .debug_line    0x0000000000000000      0x12f main.o
+ .debug_line    0x0000000000000000      0x1b7 main.o
 
 .debug_frame    0x0000000000000000       0x30
  *(.debug_frame)

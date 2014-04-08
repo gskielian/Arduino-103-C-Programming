@@ -48,7 +48,7 @@ MCU = atmega328p
 #     processor frequency. You can then use this symbol in your source code to 
 #     calculate timings. Do NOT tack on a 'UL' at the end, this will be done
 #     automatically to create a 32-bit value in your source code.
-F_CPU = 16000000
+F_CPU = 8000000
 
 
 # Output format. (can be srec, ihex, binary)
@@ -202,7 +202,7 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 AVRDUDE_PROGRAMMER = arduino
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyACM0
+AVRDUDE_PORT = /dev/ttyUSB0
 #AVRDUDE_PORT = lpt1
 #AVRDUDE_PORT = COM1
 
@@ -224,7 +224,7 @@ AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 # to submit bug reports.
 #AVRDUDE_VERBOSE = -v -v
 
-AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER)
+AVRDUDE_FLAGS = -p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -b 57600
 AVRDUDE_FLAGS += $(AVRDUDE_NO_VERIFY)
 AVRDUDE_FLAGS += $(AVRDUDE_VERBOSE)
 AVRDUDE_FLAGS += $(AVRDUDE_ERASE_COUNTER)
@@ -248,7 +248,7 @@ DEBUG_BACKEND = avarice
 GDBINIT_FILE = __avr_gdbinit
 
 # When using avarice settings for the JTAG
-JTAG_DEV = /dev/tty.usbmodem1421
+JTAG_DEV = /dev/ttyUSB0
 
 # Debugging port used to communicate between GDB / avarice / simulavr.
 DEBUG_PORT = 4242

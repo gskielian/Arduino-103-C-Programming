@@ -20,12 +20,13 @@ int main (void) {
 //      _delay_ms(1000);
 //    }
  // }
- uint8_t i;
+  uint8_t i;
 
- for (i = 2 ; i < 255 ; i++){
-  OCR1AL = i;
-  _delay_ms(100);
- }
+  for (i = 255; i > 0 ; i--) {
+    OCR1AL = i;
+    _delay_ms(50);
+  }
+  OCR1AL = 0;
   return 0;
 }
 
@@ -37,9 +38,9 @@ void io_init (void) {
 void pwm_init(void) {
   TCCR1A = _BV(COM1B0); // COM1B0 indicates toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
 //  (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
-//    (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
+//  (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
 //
-  OCR1AH = 0x02;
+  OCR1AH = 0x00; //this controls the higher half of the 16 bit "TOP" value
 
 
   TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the 
