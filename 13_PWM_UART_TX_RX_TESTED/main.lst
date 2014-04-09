@@ -377,8 +377,8 @@
  397               	.LM77:
  398 01b0 6091 0000 		lds r22,__iob+2
  399 01b4 7091 0000 		lds r23,__iob+2+1
- 400 01b8 80E3      		ldi r24,lo8(48)
- 401 01ba 90E0      		ldi r25,hi8(48)
+ 400 01b8 81E6      		ldi r24,lo8(97)
+ 401 01ba 90E0      		ldi r25,hi8(97)
  402               	.LVL33:
  403               	.L36:
  404 01bc 0E94 0000 		call fputc
@@ -407,21 +407,21 @@
  504               	.Letext0:
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-     /tmp/cc8O6656.s:2      *ABS*:000000000000003f __SREG__
-     /tmp/cc8O6656.s:3      *ABS*:000000000000003e __SP_H__
-     /tmp/cc8O6656.s:4      *ABS*:000000000000003d __SP_L__
-     /tmp/cc8O6656.s:5      *ABS*:0000000000000034 __CCP__
-     /tmp/cc8O6656.s:6      *ABS*:0000000000000000 __tmp_reg__
-     /tmp/cc8O6656.s:7      *ABS*:0000000000000001 __zero_reg__
-     /tmp/cc8O6656.s:18     .text:0000000000000000 uart_putchar
-     /tmp/cc8O6656.s:52     .text:000000000000001e uart_getchar
-     /tmp/cc8O6656.s:73     .text:000000000000002c io_init
-     /tmp/cc8O6656.s:93     .text:0000000000000036 pwm_init
-     /tmp/cc8O6656.s:115    .text:0000000000000048 shake_sequence
-     /tmp/cc8O6656.s:242    .text:00000000000000d2 set_baud
-     /tmp/cc8O6656.s:412    .data:0000000000000000 uart_output
-     /tmp/cc8O6656.s:422    .data:000000000000000e uart_input
-     /tmp/cc8O6656.s:283    .text:000000000000010c main
+     /tmp/cco1ysK9.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/cco1ysK9.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/cco1ysK9.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/cco1ysK9.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/cco1ysK9.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cco1ysK9.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cco1ysK9.s:18     .text:0000000000000000 uart_putchar
+     /tmp/cco1ysK9.s:52     .text:000000000000001e uart_getchar
+     /tmp/cco1ysK9.s:73     .text:000000000000002c io_init
+     /tmp/cco1ysK9.s:93     .text:0000000000000036 pwm_init
+     /tmp/cco1ysK9.s:115    .text:0000000000000048 shake_sequence
+     /tmp/cco1ysK9.s:242    .text:00000000000000d2 set_baud
+     /tmp/cco1ysK9.s:412    .data:0000000000000000 uart_output
+     /tmp/cco1ysK9.s:422    .data:000000000000000e uart_input
+     /tmp/cco1ysK9.s:283    .text:000000000000010c main
                             *COM*:0000000000000004 duration
                             *COM*:0000000000000002 count_dots
                             *COM*:0000000000000002 response_number

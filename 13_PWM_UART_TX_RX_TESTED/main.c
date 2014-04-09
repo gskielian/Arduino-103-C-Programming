@@ -118,7 +118,7 @@ int main (void) {
         putchar('6');
         break;
       default:
-        putchar('0');
+        putchar('a');
         break;
     }
   }
@@ -191,7 +191,7 @@ void demo_full_sequence(); ()// TODO align sequence in a function
 
 
 void io_init (void) {
-  //1 = output, 0 = input
+  //1 = output, 0 = input5
   DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
   //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
   DDRD = _BV(OPTO);

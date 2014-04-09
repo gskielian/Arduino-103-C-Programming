@@ -146,7 +146,7 @@ char uart_getchar(FILE *stream) {
 
 
 void io_init (void) {
-  //1 = output, 0 = input
+  //1 = output, 0 = input5
   DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
   d2:	8c e3       	ldi	r24, 0x3C	; 60
   d4:	84 b9       	out	0x04, r24	; 4
@@ -510,10 +510,10 @@ int main (void) {
  254:	06 c0       	rjmp	.+12     	; 0x262 <main+0xb0>
         break;
       default:
-        putchar('0');
+        putchar('a');
  256:	60 91 26 01 	lds	r22, 0x0126
  25a:	70 91 27 01 	lds	r23, 0x0127
- 25e:	80 e3       	ldi	r24, 0x30	; 48
+ 25e:	81 e6       	ldi	r24, 0x61	; 97
  260:	90 e0       	ldi	r25, 0x00	; 0
  262:	0e 94 76 01 	call	0x2ec	; 0x2ec <fputc>
  266:	a9 cf       	rjmp	.-174    	; 0x1ba <main+0x8>
