@@ -56,7 +56,7 @@ void io_init(void);      // Initializes IO
 void pwm_init(void);     // Initializes PWM
 void set_baud(void);
 void shake_sequence(uint8_t number);
-//void find_first_well(void); // TODO find the pwm speed for Servo.h 
+void find_first_well(void); // TODO find the pwm speed for Servo.h 
 
 
 //demo sequences
@@ -81,7 +81,6 @@ int main (void) {
       case '1':
         //shake sequence
         PORTB |= _BV(ENA); // ON the enable bit
-  }
         shake_sequence(2); // TODO shake twice -- can mod this later for custom shakes
         PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('1');
@@ -96,7 +95,7 @@ int main (void) {
       case '3':
         //recording_sequence
         PORTB |= _BV(ENA); // ON the enable bit
-        //find_first_well(); // TODO find the pwm speed for Servo.h 
+        find_first_well(); // TODO find the pwm speed for Servo.h 
         //and emulate to avoid needing to perform trial and error
         PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('3');
@@ -217,10 +216,54 @@ void demo_centrifuge_stage() {
 
   // TODO add control method for customization
 
+void find_first_well() {
+  // TODO find the pwm speed for Servo.h
+
+  uint8_t i;
+  uint8_t j;
+
+  pwm_init();
+
+  OCR1AH = 0x50;
+  OCR1AL = 0xff;
+
+  PORTB |= _BV(ENA); // ON the enable bit
+
+  int time_delay = 10000;
+  uint8_t j_high = 77;
+  uint8_t j_low  = 0;
+  uint8_t i_high = 255;
+  uint8_t i_low  = 0;
+
+  TCCR1B = _BV(WGM02) | _BV(CS11); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
+
+    OCR1AH = 78;
+    OCR1AL = 30;
+      _delay_ms(time_delay);
+      printf("Speed is j=%u  i=%u \n", j, i);
+  
+  OCR1AH = j_high;
+  OCR1AL = 120;
+  _delay_ms(4000);
+  PORTD &= ~_BV(ENA);// OFF the enable bit
+  TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
+
+  TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
 /*
-void find_first_well() () ; // TODO find the pwm speed for Servo.h 
-void demo_full_sequence(); ()// TODO align sequence in a function
+
+  //first we make sure we're on an open space
+  long open_space;
+  do {
+
+
+  }
 */
+
+
+}
+
+//long pulseIn()
+//void demo_full_sequence(); ()// TODO align sequence in a function
 
 
 void io_init (void) {

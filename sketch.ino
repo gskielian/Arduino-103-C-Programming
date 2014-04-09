@@ -145,11 +145,11 @@ void find_first_well()
   motor.attach(PUL);
   //gotofirst well
   long open_space;
-do {
-  motor.writeMicroseconds(2000);
-  open_space = pulseIn(OPTO,LOW,500000);
-  //Serial.println("not open");
-} while (open_space != 0);
+  do {
+    motor.writeMicroseconds(2000);
+    open_space = pulseIn(OPTO,LOW,500000);
+    //Serial.println("not open");
+  } while (open_space != 0);
 
   //Serial.println(" open");
   motor.writeMicroseconds(2000);
@@ -159,9 +159,9 @@ do {
   motor.detach();
   count_dots=1; // equiv to count_dots = 0; count_dots++;
   delay(1000);
- // Serial.println(count_dots);
- // Serial.println("foundfirstwell");
- // Serial.println(duration);
+  // Serial.println(count_dots);
+  // Serial.println("foundfirstwell");
+  // Serial.println(duration);
 
   gotonext(100000);// begin counting dots
 }
