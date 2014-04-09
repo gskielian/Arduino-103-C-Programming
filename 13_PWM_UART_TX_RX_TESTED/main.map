@@ -132,7 +132,7 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x0000000000000000      0x348
+.text           0x0000000000000000      0x39e
  *(.vectors)
  .vectors       0x0000000000000000       0x68 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/crtm328p.o
                 0x0000000000000000                __vectors
@@ -214,36 +214,37 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
                 0x00000000000000a2                __vector_16
                 0x00000000000000a2                __vector_18
                 0x00000000000000a2                __vector_20
- .text          0x00000000000000a6      0x1c2 main.o
+ .text          0x00000000000000a6      0x218 main.o
                 0x00000000000000a6                uart_putchar
                 0x00000000000000c4                uart_getchar
                 0x00000000000000d2                io_init
                 0x00000000000000dc                pwm_init
-                0x00000000000000ee                shake_sequence
-                0x0000000000000178                set_baud
-                0x00000000000001b2                main
- .text          0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
- .text          0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_copy_data.o)
- .text          0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
- .text          0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fgetc.o)
- .text          0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fputc.o)
- .text          0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(iob.o)
-                0x0000000000000268                . = ALIGN (0x2)
+                0x00000000000000ee                demo_centrifuge_stage
+                0x0000000000000140                shake_sequence
+                0x00000000000001ca                set_baud
+                0x0000000000000204                main
+ .text          0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+ .text          0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_copy_data.o)
+ .text          0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
+ .text          0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fgetc.o)
+ .text          0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fputc.o)
+ .text          0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(iob.o)
+                0x00000000000002be                . = ALIGN (0x2)
  *(.text.*)
- .text.libgcc   0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
- .text.libgcc   0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_copy_data.o)
- .text.libgcc   0x0000000000000268        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
+ .text.libgcc   0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+ .text.libgcc   0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_copy_data.o)
+ .text.libgcc   0x00000000000002be        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_clear_bss.o)
  .text.avr-libc
-                0x0000000000000268       0x84 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fgetc.o)
-                0x0000000000000268                fgetc
+                0x00000000000002be       0x84 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fgetc.o)
+                0x00000000000002be                fgetc
  .text.avr-libc
-                0x00000000000002ec       0x58 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fputc.o)
-                0x00000000000002ec                fputc
-                0x0000000000000344                . = ALIGN (0x2)
+                0x0000000000000342       0x58 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(fputc.o)
+                0x0000000000000342                fputc
+                0x000000000000039a                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000000000000344        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
-                0x0000000000000344                exit
-                0x0000000000000344                _exit
+ .fini9         0x000000000000039a        0x0 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+                0x000000000000039a                exit
+                0x000000000000039a                _exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -262,11 +263,11 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000000000000344        0x4 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
+ .fini0         0x000000000000039a        0x4 /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
  *(.fini0)
-                0x0000000000000348                _etext = .
+                0x000000000000039e                _etext = .
 
-.data           0x0000000000800100       0x1c load address 0x0000000000000348
+.data           0x0000000000800100       0x1c load address 0x000000000000039e
                 0x0000000000800100                PROVIDE (__data_start, .)
  *(.data)
  .data          0x0000000000800100        0x0 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/crtm328p.o
@@ -307,8 +308,8 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
  COMMON         0x0000000000800124        0x6 /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/libc.a(iob.o)
                 0x0000000000800124                __iob
                 0x000000000080012a                PROVIDE (__bss_end, .)
-                0x0000000000000348                __data_load_start = LOADADDR (.data)
-                0x0000000000000364                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x000000000000039e                __data_load_start = LOADADDR (.data)
+                0x00000000000003ba                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x000000000080012a        0x0
                 0x000000000080012a                PROVIDE (__noinit_start, .)
@@ -380,36 +381,36 @@ LOAD /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a
                 0x0000000000000000       0x20 main.o
 
 .debug_pubnames
-                0x0000000000000000       0xc5
+                0x0000000000000000       0xdf
  *(.debug_pubnames)
  .debug_pubnames
-                0x0000000000000000       0xc5 main.o
+                0x0000000000000000       0xdf main.o
 
-.debug_info     0x0000000000000000      0x40d
+.debug_info     0x0000000000000000      0x550
  *(.debug_info)
- .debug_info    0x0000000000000000      0x40d main.o
+ .debug_info    0x0000000000000000      0x550 main.o
  *(.gnu.linkonce.wi.*)
 
-.debug_abbrev   0x0000000000000000      0x22a
+.debug_abbrev   0x0000000000000000      0x289
  *(.debug_abbrev)
- .debug_abbrev  0x0000000000000000      0x22a main.o
+ .debug_abbrev  0x0000000000000000      0x289 main.o
 
-.debug_line     0x0000000000000000      0x351
+.debug_line     0x0000000000000000      0x3e0
  *(.debug_line)
- .debug_line    0x0000000000000000      0x351 main.o
+ .debug_line    0x0000000000000000      0x3e0 main.o
 
-.debug_frame    0x0000000000000000       0x80
+.debug_frame    0x0000000000000000       0x90
  *(.debug_frame)
- .debug_frame   0x0000000000000000       0x80 main.o
+ .debug_frame   0x0000000000000000       0x90 main.o
 
-.debug_str      0x0000000000000000      0x1ca
+.debug_str      0x0000000000000000      0x1ef
  *(.debug_str)
- .debug_str     0x0000000000000000      0x1ca main.o
-                                        0x210 (size before relaxing)
+ .debug_str     0x0000000000000000      0x1ef main.o
+                                        0x235 (size before relaxing)
 
-.debug_loc      0x0000000000000000      0x1bd
+.debug_loc      0x0000000000000000      0x1f0
  *(.debug_loc)
- .debug_loc     0x0000000000000000      0x1bd main.o
+ .debug_loc     0x0000000000000000      0x1f0 main.o
 
 .debug_macinfo
  *(.debug_macinfo)
@@ -469,6 +470,7 @@ __vector_default                                  /usr/lib/gcc/avr/4.5.3/../../.
 __vectors                                         /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/crtm328p.o
 _exit                                             /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
 count_dots                                        main.o
+demo_centrifuge_stage                             main.o
 duration                                          main.o
 exit                                              /usr/lib/gcc/avr/4.5.3/avr5/libgcc.a(_exit.o)
                                                   /usr/lib/gcc/avr/4.5.3/../../../avr/lib/avr5/crtm328p.o

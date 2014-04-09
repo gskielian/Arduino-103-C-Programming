@@ -60,7 +60,7 @@ void shake_sequence(uint8_t number);
 
 
 //demo sequences
-//void demo_centrifuge_stage(void); // TODO add control method for customization
+void demo_centrifuge_stage(void); // TODO add control method for customization
 //void demo_full_sequence(void); // TODO align sequence in a function
 //======================
 
@@ -81,6 +81,7 @@ int main (void) {
       case '1':
         //shake sequence
         PORTB |= _BV(ENA); // ON the enable bit
+  }
         shake_sequence(2); // TODO shake twice -- can mod this later for custom shakes
         PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('1');
@@ -88,7 +89,7 @@ int main (void) {
       case '2':
         //ramp sequence
         PORTB |= _BV(ENA); // ON the enable bit
-        //demo_centrifuge_stage(); // TODO add control method for customization
+        demo_centrifuge_stage(); // TODO add control method for customization
         PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('2');
         break;
@@ -182,10 +183,42 @@ void shake_sequence(uint8_t number) {
 }
 
 
+void demo_centrifuge_stage() {
+  uint8_t i;
+  uint8_t j;
 
-/* functions left 
+  pwm_init();
+
+  OCR1AH = 0x50;
+  OCR1AL = 0xff;
+
+  PORTB |= _BV(ENA); // ON the enable bit
+
+  int time_delay = 50;
+  uint8_t j_high = 255;
+  uint8_t j_low  = 40;
+
+  uint8_t i_high = 255;
+  uint8_t i_low  = 0;
+
+  int times;
+  for (j = j_high ; j > j_low ; j--) {
+    OCR1AH = j;
+    for (i = i_high; i > i_low ; i--) {
+      OCR1AL = i;
+      _delay_us(time_delay);
+    }
+  }
+  _delay_ms(4000);
+  PORTD &= ~_BV(ENA);// OFF the enable bit
+  TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
+
+}
+
+  // TODO add control method for customization
+
+/*
 void find_first_well() () ; // TODO find the pwm speed for Servo.h 
-void demo_centrifuge_stage() (); // TODO add control method for customization
 void demo_full_sequence(); ()// TODO align sequence in a function
 */
 
