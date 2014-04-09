@@ -30,7 +30,7 @@
 #define PUL PB2
 #define DIR PB3
 #define ENA PB4
-#define LED PB4
+#define LED PB5
 
 #define OPTO PD2
 
@@ -80,41 +80,41 @@ int main (void) {
     switch (input) {
       case '1':
         //shake sequence
-        PORTD |= _BV(ENA); // ON the enable bit
+        PORTB |= _BV(ENA); // ON the enable bit
         shake_sequence(2); // TODO shake twice -- can mod this later for custom shakes
-        PORTD &= ~_BV(ENA);// OFF the enable bit
+        PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('1');
         break;
       case '2':
         //ramp sequence
-        PORTD |= _BV(ENA); // ON the enable bit
+        PORTB |= _BV(ENA); // ON the enable bit
         //demo_centrifuge_stage(); // TODO add control method for customization
-        PORTD &= ~_BV(ENA);// OFF the enable bit
+        PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('2');
         break;
       case '3':
         //recording_sequence
-        PORTD |= _BV(ENA); // ON the enable bit
+        PORTB |= _BV(ENA); // ON the enable bit
         //find_first_well(); // TODO find the pwm speed for Servo.h 
         //and emulate to avoid needing to perform trial and error
-        PORTD &= ~_BV(ENA);// OFF the enable bit
+        PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('3');
         break;
       case '4':
         //full_sequence
-        PORTD |= _BV(ENA); // ON the enable bit
+        PORTB |= _BV(ENA); // ON the enable bit
         //demo_full_sequence();// TODO create full sequence
-        PORTD &= ~_BV(ENA);// OFF the enable bit
+        PORTB &= ~_BV(ENA);// OFF the enable bit
         putchar('4');
         break;
       case '5':
         //LED ON
-        PORTD |= _BV(LED); // TODO Test LED ON
+        PORTB |= _BV(LED); // TODO Test LED ON
         putchar('5');
         break;
       case '6':
         //LED OFF
-        PORTD &= ~_BV(LED); // TODO Test LED OFF
+        PORTB &= ~_BV(LED); // TODO Test LED OFF
         putchar('6');
         break;
       default:
@@ -148,7 +148,7 @@ void shake_sequence(uint8_t number) {
   OCR1AH = 0x50;
   OCR1AL = 0xff;
 
-  PORTD |= _BV(ENA); // ON the enable bit
+  PORTB |= _BV(ENA); // ON the enable bit
   for (j = 50 ; j > 0 ; j--) {
       OCR1AH = j;
     for (i = 255; i > 0 ; i--) {
@@ -161,7 +161,7 @@ void shake_sequence(uint8_t number) {
   for (i = 0x00; i < 0x04; i++ )
   {
     printf("shake %u \r\n", i);
-    PORTD |= _BV(DIR); // CW direction bit (high is CW) could use a toggle here
+    PORTB |= _BV(DIR); // CW direction bit (high is CW) could use a toggle here
       for (i = 0xff; i > 0x00; i--) {
         OCR1AL = i;
         _delay_ms(10);
