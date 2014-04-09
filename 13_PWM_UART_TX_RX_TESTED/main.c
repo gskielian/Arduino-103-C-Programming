@@ -149,29 +149,34 @@ void shake_sequence(uint8_t number) {
   OCR1AL = 0xff;
 
   PORTB |= _BV(ENA); // ON the enable bit
-  for (j = 50 ; j > 0 ; j--) {
-      OCR1AH = j;
-    for (i = 255; i > 0 ; i--) {
-      OCR1AL = i;
-      printf("Hello world %u %u \r\n", i, j);
-      _delay_ms(10);
-    }
-  }
-     /*
-  for (i = 0x00; i < 0x04; i++ )
+
+  int time_delay = 10;
+  uint8_t j_high = 255;
+  uint8_t j_low  = 50;
+
+  uint8_t i_high = 255;
+  uint8_t i_low  = 0;
+
+  int times;
+  for ( times = 0 ; times < number ; times++)
   {
-    printf("shake %u \r\n", i);
-    PORTB |= _BV(DIR); // CW direction bit (high is CW) could use a toggle here
-      for (i = 0xff; i > 0x00; i--) {
+    for (j = j_high ; j > j_low ; j--) {
+      OCR1AH = j;
+      for (i = i_high; i > i_low ; i--) {
         OCR1AL = i;
-        _delay_ms(10);
+        _delay_us(time_delay);
       }
-      for (i = 0x00; i < 0xff ; i++) {
+    }
+    for (j = j_low ; j < j_high ; j++) {
+      OCR1AH = j;
+      for (i = i_low; i < i_high; i++) {
         OCR1AL = i;
-        _delay_ms(10);
+        _delay_us(time_delay);
       }
+    }
+    PORTB ^= _BV(DIR);
+
   }
-  */
   PORTD &= ~_BV(ENA);// OFF the enable bit
   TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
 }

@@ -1,888 +1,432 @@
    1               		.file	"main.c"
-   2               	__SP_H__ = 0x3e
-   3               	__SP_L__ = 0x3d
-   4               	__SREG__ = 0x3f
-   5               	__tmp_reg__ = 0
-   6               	__zero_reg__ = 1
-   7               		.text
-   8               	.Ltext0:
-   9               	.global	uart_putchar
-  11               	uart_putchar:
-  12               	.LFB12:
-  13               		.file 1 "main.c"
-   1:main.c        **** #include <util/delay.h>
-   2:main.c        **** #include <avr/io.h>
-   3:main.c        **** #include <stdint.h>
-   4:main.c        **** 
-   5:main.c        **** //this is for the uart code
-   6:main.c        **** #include <stdio.h>
-   7:main.c        **** 
-   8:main.c        **** 
-   9:main.c        **** //this library simplifies the return data
-  10:main.c        **** #include <string.h>
-  11:main.c        **** 
-  12:main.c        **** //set the baud rate
-  13:main.c        **** #define F_CPU 16000000UL
-  14:main.c        **** #define BAUD 9600
-  15:main.c        **** #define BRC ((F_CPU/16/BAUD) - 1)
-  16:main.c        **** 
-  17:main.c        **** //define TX RX buffer sizes
-  18:main.c        **** #define TX_BUFFER_SIZE 128
-  19:main.c        **** #define RX_BUFFER_SIZE 128
-  20:main.c        **** 
-  21:main.c        **** //these are some macros which help set hte bits
-  22:main.c        **** #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
-  23:main.c        **** #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
-  24:main.c        **** 
-  25:main.c        **** 
-  26:main.c        **** //PUL  Portb2
-  27:main.c        **** //DIR  Portb3
-  28:main.c        **** //ENA  Portb4
-  29:main.c        **** 
-  30:main.c        **** #define PUL PB2
-  31:main.c        **** #define DIR PB3
-  32:main.c        **** #define ENA PB4
-  33:main.c        **** #define LED PB5
-  34:main.c        **** 
-  35:main.c        **** #define OPTO PD2
-  36:main.c        **** 
-  37:main.c        **** 
-  38:main.c        **** //Uart setup
-  39:main.c        **** void uart_putchar(char c, FILE *stream);
-  40:main.c        **** char uart_getchar(FILE *stream);
-  41:main.c        **** 
-  42:main.c        **** //set up streams
-  43:main.c        **** FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-  44:main.c        **** FILE uart_input  = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
-  45:main.c        **** //end uart setup
-  46:main.c        **** 
-  47:main.c        **** 
-  48:main.c        **** //unsigned long
-  49:main.c        **** unsigned long duration; //automatically initialized to be zero
-  50:main.c        **** int count_dots;
-  51:main.c        **** int response_number;
-  52:main.c        **** 
-  53:main.c        **** //Define functions
-  54:main.c        **** //======================
-  55:main.c        **** void io_init(void);      // Initializes IO
-  56:main.c        **** void pwm_init(void);     // Initializes PWM
-  57:main.c        **** void set_baud(void);
-  58:main.c        **** void shake_sequence(uint8_t number);
-  59:main.c        **** //void find_first_well(void); // TODO find the pwm speed for Servo.h 
-  60:main.c        **** 
-  61:main.c        **** 
-  62:main.c        **** //demo sequences
-  63:main.c        **** //void demo_centrifuge_stage(void); // TODO add control method for customization
-  64:main.c        **** //void demo_full_sequence(void); // TODO align sequence in a function
-  65:main.c        **** //======================
-  66:main.c        **** 
-  67:main.c        **** int main (void) {
-  68:main.c        ****   io_init(); //Setup IO pins and defaults
-  69:main.c        ****   set_baud();
-  70:main.c        **** 
-  71:main.c        ****   char input;
-  72:main.c        **** 
-  73:main.c        ****   while (1) {
-  74:main.c        **** 
-  75:main.c        ****     input = getchar();
-  76:main.c        **** 
-  77:main.c        ****     //first stage will be a simple switch case`
-  78:main.c        **** 
-  79:main.c        **** 
-  80:main.c        ****     switch (input) {
-  81:main.c        ****       case '1':
-  82:main.c        ****         //shake sequence
-  83:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
-  84:main.c        ****         shake_sequence(2); // TODO shake twice -- can mod this later for custom shakes
-  85:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
-  86:main.c        ****         putchar('1');
-  87:main.c        ****         break;
-  88:main.c        ****       case '2':
-  89:main.c        ****         //ramp sequence
-  90:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
-  91:main.c        ****         //demo_centrifuge_stage(); // TODO add control method for customization
-  92:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
-  93:main.c        ****         putchar('2');
-  94:main.c        ****         break;
-  95:main.c        ****       case '3':
-  96:main.c        ****         //recording_sequence
-  97:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
-  98:main.c        ****         //find_first_well(); // TODO find the pwm speed for Servo.h 
-  99:main.c        ****         //and emulate to avoid needing to perform trial and error
- 100:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
- 101:main.c        ****         putchar('3');
- 102:main.c        ****         break;
- 103:main.c        ****       case '4':
- 104:main.c        ****         //full_sequence
- 105:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
- 106:main.c        ****         //demo_full_sequence();// TODO create full sequence
- 107:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
- 108:main.c        ****         putchar('4');
- 109:main.c        ****         break;
- 110:main.c        ****       case '5':
- 111:main.c        ****         //LED ON
- 112:main.c        ****         PORTB |= _BV(LED); // TODO Test LED ON
- 113:main.c        ****         putchar('5');
- 114:main.c        ****         break;
- 115:main.c        ****       case '6':
- 116:main.c        ****         //LED OFF
- 117:main.c        ****         PORTB &= ~_BV(LED); // TODO Test LED OFF
- 118:main.c        ****         putchar('6');
- 119:main.c        ****         break;
- 120:main.c        ****       default:
- 121:main.c        ****         putchar('0');
- 122:main.c        ****         break;
- 123:main.c        ****     }
- 124:main.c        ****   }
- 125:main.c        **** 
- 126:main.c        ****   /*
- 127:main.c        ****      if ( input == '1' ) {
- 128:main.c        ****      for (i = 255; i > 0 ; i--) {
- 129:main.c        ****      OCR1AL = i;
- 130:main.c        ****      printf("Hello world %u \r\n", i);
- 131:main.c        ****      _delay_ms(1000);
- 132:main.c        ****      }
- 133:main.c        ****      OCR1AL = 0;
- 134:main.c        ****      } else {
- 135:main.c        **** 
- 136:main.c        ****      printf("not the right answer");
- 137:main.c        ****      }
- 138:main.c        ****      */
- 139:main.c        ****   return 0;
- 140:main.c        **** }
- 141:main.c        **** 
- 142:main.c        **** void shake_sequence(uint8_t number) {
- 143:main.c        ****   uint8_t i;
- 144:main.c        ****   uint8_t j;
- 145:main.c        **** 
- 146:main.c        ****   pwm_init();
- 147:main.c        **** 
- 148:main.c        ****   OCR1AH = 0x50;
- 149:main.c        ****   OCR1AL = 0xff;
- 150:main.c        **** 
- 151:main.c        ****   PORTB |= _BV(ENA); // ON the enable bit
- 152:main.c        ****   for (j = 50 ; j > 0 ; j--) {
- 153:main.c        ****       OCR1AH = j;
- 154:main.c        ****     for (i = 255; i > 0 ; i--) {
- 155:main.c        ****       OCR1AL = i;
- 156:main.c        ****       printf("Hello world %u %u \r\n", i, j);
- 157:main.c        ****       _delay_ms(10);
- 158:main.c        ****     }
- 159:main.c        ****   }
- 160:main.c        ****      /*
- 161:main.c        ****   for (i = 0x00; i < 0x04; i++ )
- 162:main.c        ****   {
- 163:main.c        ****     printf("shake %u \r\n", i);
- 164:main.c        ****     PORTB |= _BV(DIR); // CW direction bit (high is CW) could use a toggle here
- 165:main.c        ****       for (i = 0xff; i > 0x00; i--) {
- 166:main.c        ****         OCR1AL = i;
- 167:main.c        ****         _delay_ms(10);
- 168:main.c        ****       }
- 169:main.c        ****       for (i = 0x00; i < 0xff ; i++) {
- 170:main.c        ****         OCR1AL = i;
- 171:main.c        ****         _delay_ms(10);
- 172:main.c        ****       }
- 173:main.c        ****   }
- 174:main.c        ****   */
- 175:main.c        ****   PORTD &= ~_BV(ENA);// OFF the enable bit
- 176:main.c        ****   TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 
- 177:main.c        **** }
- 178:main.c        **** 
- 179:main.c        **** 
- 180:main.c        **** 
- 181:main.c        **** /* functions left 
- 182:main.c        **** void find_first_well() () ; // TODO find the pwm speed for Servo.h 
- 183:main.c        **** void demo_centrifuge_stage() (); // TODO add control method for customization
- 184:main.c        **** void demo_full_sequence(); ()// TODO align sequence in a function
- 185:main.c        **** */
- 186:main.c        **** 
- 187:main.c        **** 
- 188:main.c        **** void io_init (void) {
- 189:main.c        ****   //1 = output, 0 = input
- 190:main.c        ****   DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
- 191:main.c        ****   //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
- 192:main.c        ****   DDRD = _BV(OPTO);
- 193:main.c        ****   //     Pin 2 of the arduino
- 194:main.c        ****   //     */
- 195:main.c        **** }
- 196:main.c        **** 
- 197:main.c        **** void pwm_init(void) {
- 198:main.c        ****   TCCR1A = _BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10
- 199:main.c        **** 
- 200:main.c        ****   //  (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
- 201:main.c        ****   //  (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
- 202:main.c        **** 
- 203:main.c        ****   OCR1AH = 0x00; //this controls the higher half of the 16 bit "TOP" value
- 204:main.c        **** 
- 205:main.c        **** 
- 206:main.c        ****   TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fa
- 207:main.c        ****   /*
- 208:main.c        ****   //   (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
- 209:main.c        ****   //    (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
- 210:main.c        **** 
- 211:main.c        ****   //there are three waveform-generation-mode bits: WGM03 WGM02 WGM01 WGM00 -- mode 3 (0100) is CTC 
- 212:main.c        **** 
- 213:main.c        ****   Clock Select Bit Description
- 214:main.c        ****   CS12 CS11 CS10 
- 215:main.c        ****   Description
- 216:main.c        ****   0 0 0 No clock source (Timer/Counter stopped).
- 217:main.c        ****   0 0 1 clkI/O/1 (No prescaling)
- 218:main.c        ****   0 1 0 clkI/O/8 (From prescaler)
- 219:main.c        ****   0 1 1 clkI/O/64 (From prescaler)
- 220:main.c        ****   1 0 0 clkI/O/256 (From prescaler)
- 221:main.c        ****   1 0 1 clkI/O/1024 (From prescaler)
- 222:main.c        ****   1 1 0 External clock source on T1 pin. Clock on falling edge.
- 223:main.c        ****   1 1 1 External clock source on T1 pin. Clock on rising edgputchar
- 224:main.c        ****   */
- 225:main.c        **** }
- 226:main.c        **** 
- 227:main.c        **** 
- 228:main.c        **** void set_baud(void) {
- 229:main.c        ****   UBRR0H = (BRC >> 8);
- 230:main.c        ****   UBRR0L = BRC;
- 231:main.c        **** 
- 232:main.c        ****   //enables rx and tx, page 183 example from documentation
- 233:main.c        ****   UCSR0B = (1 << RXEN0) | (1 << RXCIE0) | (1 << TXEN0 ) | (1 << TXCIE0);
- 234:main.c        **** 
- 235:main.c        ****   //198 of documentation, these two bits make it 8-bit
- 236:main.c        ****   UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
- 237:main.c        **** 
- 238:main.c        ****   //since we don't use 2x
- 239:main.c        ****   UCSR0A &= ~(_BV(U2X0));
- 240:main.c        **** 
- 241:main.c        ****   //redirecting standard out and in to UART -- very clever tuupola
- 242:main.c        ****   stdout = &uart_output;
- 243:main.c        ****   stdin  = &uart_input;
- 244:main.c        **** 
- 245:main.c        **** }
- 246:main.c        **** 
- 247:main.c        **** void uart_putchar(char c, FILE *stream) {
-  14               		.loc 1 247 0
-  15               	.LVL0:
-  16 0000 CF93      		push r28
-  17               	.LCFI0:
-  18               	/* prologue: function */
-  19               	/* frame size = 0 */
-  20               	/* stack size = 1 */
-  21               	.L__stack_usage = 1
-  22 0002 C82F      		mov r28,r24
- 248:main.c        ****   if (c == '\n') {
-  23               		.loc 1 248 0
-  24 0004 8A30      		cpi r24,lo8(10)
-  25 0006 01F4      		brne .L6
- 249:main.c        ****     uart_putchar('\r', stream);
-  26               		.loc 1 249 0
-  27 0008 8DE0      		ldi r24,lo8(13)
-  28               	.LVL1:
-  29 000a 0E94 0000 		call uart_putchar
-  30               	.LVL2:
-  31               	.L6:
- 250:main.c        ****   }
- 251:main.c        ****   loop_until_bit_is_set(UCSR0A, UDRE0);
-  32               		.loc 1 251 0 discriminator 1
-  33 000e 8091 C000 		lds r24,192
-  34 0012 85FF      		sbrs r24,5
-  35 0014 00C0      		rjmp .L6
- 252:main.c        ****   UDR0 = c;
-  36               		.loc 1 252 0
-  37 0016 C093 C600 		sts 198,r28
-  38               	/* epilogue start */
- 253:main.c        **** }
-  39               		.loc 1 253 0
-  40 001a CF91      		pop r28
-  41               	.LVL3:
-  42 001c 0895      		ret
-  43               	.LFE12:
-  45               	.global	uart_getchar
-  47               	uart_getchar:
-  48               	.LFB13:
- 254:main.c        **** 
- 255:main.c        **** 
- 256:main.c        **** char uart_getchar(FILE *stream) {
-  49               		.loc 1 256 0
-  50               	/* prologue: function */
-  51               	/* frame size = 0 */
-  52               	/* stack size = 0 */
-  53               	.L__stack_usage = 0
-  54               	.LVL4:
-  55               	.L10:
- 257:main.c        ****   loop_until_bit_is_set(UCSR0A, RXC0);
-  56               		.loc 1 257 0 discriminator 1
-  57 001e 8091 C000 		lds r24,192
-  58 0022 87FF      		sbrs r24,7
-  59 0024 00C0      		rjmp .L10
- 258:main.c        ****   return UDR0;
-  60               		.loc 1 258 0
-  61 0026 8091 C600 		lds r24,198
- 259:main.c        **** }
-  62               		.loc 1 259 0
-  63 002a 0895      		ret
-  64               	.LFE13:
-  66               	.global	io_init
-  68               	io_init:
-  69               	.LFB9:
- 188:main.c        **** void io_init (void) {
-  70               		.loc 1 188 0
-  71               	/* prologue: function */
-  72               	/* frame size = 0 */
-  73               	/* stack size = 0 */
-  74               	.L__stack_usage = 0
- 190:main.c        ****   DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
-  75               		.loc 1 190 0
-  76 002c 8CE3      		ldi r24,lo8(60)
-  77 002e 84B9      		out 0x4,r24
- 192:main.c        ****   DDRD = _BV(OPTO);
-  78               		.loc 1 192 0
-  79 0030 84E0      		ldi r24,lo8(4)
-  80 0032 8AB9      		out 0xa,r24
-  81 0034 0895      		ret
-  82               	.LFE9:
-  84               	.global	pwm_init
-  86               	pwm_init:
-  87               	.LFB10:
- 197:main.c        **** void pwm_init(void) {
-  88               		.loc 1 197 0
-  89               	/* prologue: function */
-  90               	/* frame size = 0 */
-  91               	/* stack size = 0 */
-  92               	.L__stack_usage = 0
- 198:main.c        ****   TCCR1A = _BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10
-  93               		.loc 1 198 0
-  94 0036 80E1      		ldi r24,lo8(16)
-  95 0038 8093 8000 		sts 128,r24
- 203:main.c        ****   OCR1AH = 0x00; //this controls the higher half of the 16 bit "TOP" value
-  96               		.loc 1 203 0
-  97 003c 1092 8900 		sts 137,__zero_reg__
- 206:main.c        ****   TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fa
-  98               		.loc 1 206 0
-  99 0040 89E0      		ldi r24,lo8(9)
- 100 0042 8093 8100 		sts 129,r24
- 101 0046 0895      		ret
- 102               	.LFE10:
- 104               		.section	.rodata.str1.1,"aMS",@progbits,1
- 105               	.LC0:
- 106 0000 4865 6C6C 		.string	"Hello world %u %u \r\n"
- 106      6F20 776F 
- 106      726C 6420 
- 106      2575 2025 
- 106      7520 0D0A 
- 107               		.text
- 108               	.global	shake_sequence
- 110               	shake_sequence:
- 111               	.LFB8:
- 142:main.c        **** void shake_sequence(uint8_t number) {
- 112               		.loc 1 142 0
- 113               	.LVL5:
- 114 0048 EF92      		push r14
- 115               	.LCFI1:
- 116 004a FF92      		push r15
- 117               	.LCFI2:
- 118 004c 0F93      		push r16
- 119               	.LCFI3:
- 120 004e 1F93      		push r17
- 121               	.LCFI4:
- 122 0050 CF93      		push r28
- 123               	.LCFI5:
- 124 0052 DF93      		push r29
- 125               	.LCFI6:
- 126               	/* prologue: function */
- 127               	/* frame size = 0 */
- 128               	/* stack size = 6 */
- 129               	.L__stack_usage = 6
- 146:main.c        ****   pwm_init();
- 130               		.loc 1 146 0
- 131 0054 0E94 0000 		call pwm_init
- 132               	.LVL6:
- 148:main.c        ****   OCR1AH = 0x50;
- 133               		.loc 1 148 0
- 134 0058 80E5      		ldi r24,lo8(80)
- 135 005a 8093 8900 		sts 137,r24
- 149:main.c        ****   OCR1AL = 0xff;
- 136               		.loc 1 149 0
- 137 005e 8FEF      		ldi r24,lo8(-1)
- 138 0060 8093 8800 		sts 136,r24
- 151:main.c        ****   PORTB |= _BV(ENA); // ON the enable bit
- 139               		.loc 1 151 0
- 140 0064 2C9A      		sbi 0x5,4
- 141               	.LVL7:
- 142 0066 C2E3      		ldi r28,lo8(50)
- 143 0068 D0E0      		ldi r29,0
- 156:main.c        ****       printf("Hello world %u %u \r\n", i, j);
- 144               		.loc 1 156 0
- 145 006a 80E0      		ldi r24,lo8(.LC0)
- 146 006c E82E      		mov r14,r24
- 147 006e 80E0      		ldi r24,hi8(.LC0)
- 148 0070 F82E      		mov r15,r24
- 149               	.LVL8:
- 150               	.L16:
- 153:main.c        ****       OCR1AH = j;
- 151               		.loc 1 153 0
- 152 0072 C093 8900 		sts 137,r28
- 153               	.LVL9:
- 154 0076 0FEF      		ldi r16,lo8(-1)
- 155 0078 10E0      		ldi r17,0
- 156               	.LVL10:
- 157               	.L15:
- 155:main.c        ****       OCR1AL = i;
- 158               		.loc 1 155 0 discriminator 2
- 159 007a 0093 8800 		sts 136,r16
- 156:main.c        ****       printf("Hello world %u %u \r\n", i, j);
- 160               		.loc 1 156 0 discriminator 2
- 161 007e DF93      		push r29
- 162               	.LCFI7:
- 163 0080 CF93      		push r28
- 164               	.LCFI8:
- 165 0082 1F93      		push r17
- 166               	.LCFI9:
- 167 0084 0F93      		push r16
- 168               	.LCFI10:
- 169 0086 FF92      		push r15
- 170               	.LCFI11:
- 171 0088 EF92      		push r14
- 172               	.LCFI12:
- 173 008a 0E94 0000 		call printf
- 174               	.LVL11:
- 175               	.LBB4:
- 176               	.LBB5:
- 177               		.file 2 "/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h"
-   1:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
-   2:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
-   3:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
-   4:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    All rights reserved.
-   5:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-   6:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Redistribution and use in source and binary forms, with or without
-   7:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    modification, are permitted provided that the following conditions are met:
-   8:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-   9:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    * Redistributions of source code must retain the above copyright
-  10:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer.
-  11:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  12:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    * Redistributions in binary form must reproduce the above copyright
-  13:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****      notice, this list of conditions and the following disclaimer in
-  14:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****      the documentation and/or other materials provided with the
-  15:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****      distribution.
-  16:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  17:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    * Neither the name of the copyright holders nor the names of
-  18:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****      contributors may be used to endorse or promote products derived
-  19:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****      from this software without specific prior written permission.
-  20:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  21:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  22:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  23:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-  24:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-  25:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-  26:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-  27:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-  28:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-  29:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  30:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-  31:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   POSSIBILITY OF SUCH DAMAGE. */
-  32:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  33:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** /* $Id: delay.h.in 2251 2011-09-14 08:20:33Z joerg_wunsch $ */
-  34:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  35:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #ifndef _UTIL_DELAY_H_
-  36:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #define _UTIL_DELAY_H_ 1
-  37:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  38:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #ifndef __HAS_DELAY_CYCLES
-  39:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #define __HAS_DELAY_CYCLES 1
-  40:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #endif
-  41:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  42:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #include <inttypes.h>
-  43:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #include <util/delay_basic.h>
-  44:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #include <math.h>
-  45:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  46:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** /** \file */
-  47:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** /** \defgroup util_delay <util/delay.h>: Convenience functions for busy-wait delay loops
-  48:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     \code
-  49:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     #define F_CPU 1000000UL  // 1 MHz
-  50:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     //#define F_CPU 14.7456E6
-  51:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     #include <util/delay.h>
-  52:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     \endcode
-  53:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  54:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     \note As an alternative method, it is possible to pass the
-  55:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     F_CPU macro down to the compiler from the Makefile.
-  56:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     Obviously, in that case, no \c \#define statement should be
-  57:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     used.
-  58:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  59:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     The functions in this header file are wrappers around the basic
-  60:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     busy-wait functions from <util/delay_basic.h>.  They are meant as
-  61:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     convenience functions where actual time values can be specified
-  62:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     rather than a number of cycles to wait for.  The idea behind is
-  63:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     that compile-time constant expressions will be eliminated by
-  64:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     compiler optimization so floating-point expressions can be used
-  65:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     to calculate the number of delay cycles needed based on the CPU
-  66:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     frequency passed by the macro F_CPU.
-  67:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  68:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     \note In order for these functions to work as intended, compiler
-  69:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     optimizations <em>must</em> be enabled, and the delay time
-  70:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     <em>must</em> be an expression that is a known constant at
-  71:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     compile-time.  If these requirements are not met, the resulting
-  72:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     delay will be much longer (and basically unpredictable), and
-  73:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     applications that otherwise do not use floating-point calculations
-  74:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     will experience severe code bloat by the floating-point library
-  75:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     routines linked into the application.
-  76:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  77:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     The functions available allow the specification of microsecond, and
-  78:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     millisecond delays directly, using the application-supplied macro
-  79:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     F_CPU as the CPU clock frequency (in Hertz).
-  80:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  81:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** */
-  82:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  83:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #if !defined(__DOXYGEN__)
-  84:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** static inline void _delay_us(double __us) __attribute__((always_inline));
-  85:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** static inline void _delay_ms(double __ms) __attribute__((always_inline));
-  86:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #endif
-  87:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  88:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #ifndef F_CPU
-  89:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** /* prevent compiler error by supplying a default */
-  90:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** # warning "F_CPU not defined for <util/delay.h>"
-  91:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** # define F_CPU 1000000UL
-  92:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #endif
-  93:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  94:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #ifndef __OPTIMIZE__
-  95:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** # warning "Compiler optimizations disabled; functions from <util/delay.h> won't work as designed"
-  96:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #endif
-  97:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
-  98:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
-  99:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
- 100:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   __STDC_HOSTED__
- 101:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #  include <math.h>
- 102:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #endif
- 103:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 104:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** /**
- 105:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    \ingroup util_delay
- 106:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 107:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Perform a delay of \c __ms milliseconds, using _delay_loop_2().
- 108:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 109:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    The macro F_CPU is supposed to be defined to a
- 110:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    constant defining the CPU clock frequency (in Hertz).
- 111:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 112:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    The maximal possible delay is 262.14 ms / F_CPU in MHz.
- 113:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 114:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    When the user request delay which exceed the maximum possible one,
- 115:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    _delay_ms() provides a decreased resolution functionality. In this
- 116:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    mode _delay_ms() will work with a resolution of 1/10 ms, providing
- 117:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    delays up to 6.5535 seconds (independent from CPU frequency).  The
- 118:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    user will not be informed about decreased resolution.
- 119:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 120:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    If the avr-gcc toolchain has __builtin_avr_delay_cycles(unsigned long)
- 121:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    support, maximal possible delay is 4294967.295 ms/ F_CPU in MHz. For
- 122:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    values greater than the maximal possible delay, overflows results in
- 123:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    no delay i.e., 0ms.
- 124:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 125:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Conversion of __us into clock cycles may not always result in integer.
- 126:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    By default, the clock cycles rounded up to next integer. This ensures that
- 127:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    the user gets atleast __us microseconds of delay.
- 128:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 129:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Alternatively, user can define __DELAY_ROUND_DOWN__ and __DELAY_ROUND_CLOSEST__
- 130:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    to round down and round to closest integer.
- 131:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 132:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Note: The new implementation of _delay_ms(double __ms) with 
- 133:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****     __builtin_avr_delay_cycles(unsigned long) support is not backward compatible. 
- 134:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    User can define __DELAY_BACKWARD_COMPATIBLE__ to get a backward compatible delay.
- 135:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    Also, the backward compatible
- 136:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    algorithm will be chosen if the code is compiled in a <em>freestanding
- 137:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    environment</em> (GCC option \c -ffreestanding), as the math functions
- 138:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****    required for rounding are not available to the compiler then.
- 139:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 140:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****  */
- 141:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** void
- 142:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** _delay_ms(double __ms)
- 143:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** {
- 144:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	uint16_t __ticks;
- 145:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	double __tmp ; 
- 146:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
- 147:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
- 148:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h ****   __STDC_HOSTED__
- 149:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	uint32_t __ticks_dc;
- 150:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
- 151:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
- 152:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 153:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
- 154:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
- 155:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 156:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	#elif defined(__DELAY_ROUND_CLOSEST__)
- 157:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(fabs(__tmp)+0.5);
- 158:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 159:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	#else
- 160:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 		//round up by default
- 161:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
- 162:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	#endif
- 163:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 
- 164:/usr/lib/gcc/avr/4.7.2/../../../avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
- 178               		.loc 2 164 0 discriminator 2
- 179 008e 8FE3      		ldi r24,lo8(-25537)
- 180 0090 9CE9      		ldi r25,hi8(-25537)
- 181 0092 0197      		1: sbiw r24,1
- 182 0094 01F4      		brne 1b
- 183 0096 00C0      		rjmp .
- 184 0098 0000      		nop
- 185 009a 0150      		subi r16,1
- 186 009c 1109      		sbc r17,__zero_reg__
- 187               	.LBE5:
- 188               	.LBE4:
- 154:main.c        ****     for (i = 255; i > 0 ; i--) {
- 189               		.loc 1 154 0 discriminator 2
- 190 009e 0F90      		pop __tmp_reg__
- 191 00a0 0F90      		pop __tmp_reg__
- 192 00a2 0F90      		pop __tmp_reg__
- 193 00a4 0F90      		pop __tmp_reg__
- 194 00a6 0F90      		pop __tmp_reg__
- 195 00a8 0F90      		pop __tmp_reg__
- 196               	.LCFI13:
- 197 00aa 01F4      		brne .L15
- 198 00ac 2197      		sbiw r28,1
- 152:main.c        ****   for (j = 50 ; j > 0 ; j--) {
- 199               		.loc 1 152 0
- 200 00ae 01F4      		brne .L16
- 175:main.c        ****   PORTD &= ~_BV(ENA);// OFF the enable bit
- 201               		.loc 1 175 0
- 202 00b0 5C98      		cbi 0xb,4
- 176:main.c        ****   TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 
- 203               		.loc 1 176 0
- 204 00b2 8091 8000 		lds r24,128
- 205 00b6 8F7E      		andi r24,lo8(-17)
- 206 00b8 8093 8000 		sts 128,r24
- 207               	/* epilogue start */
- 177:main.c        **** }
- 208               		.loc 1 177 0
- 209 00bc DF91      		pop r29
- 210 00be CF91      		pop r28
- 211 00c0 1F91      		pop r17
- 212 00c2 0F91      		pop r16
- 213 00c4 FF90      		pop r15
- 214 00c6 EF90      		pop r14
- 215 00c8 0895      		ret
- 216               	.LFE8:
- 218               	.global	set_baud
- 220               	set_baud:
- 221               	.LFB11:
- 228:main.c        **** void set_baud(void) {
- 222               		.loc 1 228 0
- 223               	/* prologue: function */
- 224               	/* frame size = 0 */
- 225               	/* stack size = 0 */
- 226               	.L__stack_usage = 0
- 229:main.c        ****   UBRR0H = (BRC >> 8);
- 227               		.loc 1 229 0
- 228 00ca 1092 C500 		sts 197,__zero_reg__
- 230:main.c        ****   UBRR0L = BRC;
- 229               		.loc 1 230 0
- 230 00ce 87E6      		ldi r24,lo8(103)
- 231 00d0 8093 C400 		sts 196,r24
- 233:main.c        ****   UCSR0B = (1 << RXEN0) | (1 << RXCIE0) | (1 << TXEN0 ) | (1 << TXCIE0);
- 232               		.loc 1 233 0
- 233 00d4 88ED      		ldi r24,lo8(-40)
- 234 00d6 8093 C100 		sts 193,r24
- 236:main.c        ****   UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
- 235               		.loc 1 236 0
- 236 00da 86E0      		ldi r24,lo8(6)
- 237 00dc 8093 C200 		sts 194,r24
- 239:main.c        ****   UCSR0A &= ~(_BV(U2X0));
- 238               		.loc 1 239 0
- 239 00e0 E0EC      		ldi r30,lo8(-64)
- 240 00e2 F0E0      		ldi r31,0
- 241 00e4 8081      		ld r24,Z
- 242 00e6 8D7F      		andi r24,lo8(-3)
- 243 00e8 8083      		st Z,r24
- 242:main.c        ****   stdout = &uart_output;
- 244               		.loc 1 242 0
- 245 00ea 80E0      		ldi r24,lo8(uart_output)
- 246 00ec 90E0      		ldi r25,hi8(uart_output)
- 247 00ee 9093 0000 		sts __iob+2+1,r25
- 248 00f2 8093 0000 		sts __iob+2,r24
- 243:main.c        ****   stdin  = &uart_input;
- 249               		.loc 1 243 0
- 250 00f6 80E0      		ldi r24,lo8(uart_input)
- 251 00f8 90E0      		ldi r25,hi8(uart_input)
- 252 00fa 9093 0000 		sts __iob+1,r25
- 253 00fe 8093 0000 		sts __iob,r24
- 254 0102 0895      		ret
- 255               	.LFE11:
- 257               		.section	.text.startup,"ax",@progbits
- 258               	.global	main
- 260               	main:
- 261               	.LFB7:
-  67:main.c        **** int main (void) {
- 262               		.loc 1 67 0
- 263               	/* prologue: function */
- 264               	/* frame size = 0 */
- 265               	/* stack size = 0 */
- 266               	.L__stack_usage = 0
-  68:main.c        ****   io_init(); //Setup IO pins and defaults
- 267               		.loc 1 68 0
- 268 0000 0E94 0000 		call io_init
- 269               	.LVL12:
-  69:main.c        ****   set_baud();
- 270               		.loc 1 69 0
- 271 0004 0E94 0000 		call set_baud
- 272               	.LVL13:
- 273               	.L31:
-  75:main.c        ****     input = getchar();
- 274               		.loc 1 75 0
- 275 0008 8091 0000 		lds r24,__iob
- 276 000c 9091 0000 		lds r25,__iob+1
- 277 0010 0E94 0000 		call fgetc
- 278               	.LVL14:
-  80:main.c        ****     switch (input) {
- 279               		.loc 1 80 0
- 280 0014 9927      		clr r25
- 281               	.LVL15:
- 282 0016 8333      		cpi r24,51
- 283 0018 9105      		cpc r25,__zero_reg__
- 284 001a 01F0      		breq .L25
- 285 001c 04F4      		brge .L29
- 286 001e 8133      		cpi r24,49
- 287 0020 9105      		cpc r25,__zero_reg__
- 288 0022 01F0      		breq .L23
- 289 0024 C297      		sbiw r24,50
- 290 0026 01F4      		brne .L22
- 291 0028 00C0      		rjmp .L24
- 292               	.L29:
- 293 002a 6091 0000 		lds r22,__iob+2
- 294 002e 7091 0000 		lds r23,__iob+2+1
- 295 0032 8533      		cpi r24,53
- 296 0034 9105      		cpc r25,__zero_reg__
- 297 0036 01F0      		breq .L27
- 298 0038 04F0      		brlt .L26
- 299 003a C697      		sbiw r24,54
- 300 003c 01F4      		brne .L22
- 301 003e 00C0      		rjmp .L28
- 302               	.L23:
-  83:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
- 303               		.loc 1 83 0
- 304 0040 2C9A      		sbi 0x5,4
-  84:main.c        ****         shake_sequence(2); // TODO shake twice -- can mod this later for custom shakes
- 305               		.loc 1 84 0
- 306 0042 82E0      		ldi r24,lo8(2)
- 307 0044 0E94 0000 		call shake_sequence
- 308               	.LVL16:
-  85:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
- 309               		.loc 1 85 0
- 310 0048 2C98      		cbi 0x5,4
-  86:main.c        ****         putchar('1');
- 311               		.loc 1 86 0
- 312 004a 6091 0000 		lds r22,__iob+2
- 313 004e 7091 0000 		lds r23,__iob+2+1
- 314 0052 81E3      		ldi r24,lo8(49)
- 315 0054 90E0      		ldi r25,0
- 316 0056 00C0      		rjmp .L32
- 317               	.L24:
-  90:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
- 318               		.loc 1 90 0
- 319 0058 2C9A      		sbi 0x5,4
-  92:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
- 320               		.loc 1 92 0
- 321 005a 2C98      		cbi 0x5,4
-  93:main.c        ****         putchar('2');
- 322               		.loc 1 93 0
- 323 005c 6091 0000 		lds r22,__iob+2
- 324 0060 7091 0000 		lds r23,__iob+2+1
- 325 0064 82E3      		ldi r24,lo8(50)
- 326 0066 90E0      		ldi r25,0
- 327 0068 00C0      		rjmp .L32
- 328               	.L25:
-  97:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
- 329               		.loc 1 97 0
- 330 006a 2C9A      		sbi 0x5,4
- 100:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
- 331               		.loc 1 100 0
- 332 006c 2C98      		cbi 0x5,4
- 101:main.c        ****         putchar('3');
- 333               		.loc 1 101 0
- 334 006e 6091 0000 		lds r22,__iob+2
- 335 0072 7091 0000 		lds r23,__iob+2+1
- 336 0076 83E3      		ldi r24,lo8(51)
- 337 0078 90E0      		ldi r25,0
- 338 007a 00C0      		rjmp .L32
- 339               	.L26:
- 105:main.c        ****         PORTB |= _BV(ENA); // ON the enable bit
- 340               		.loc 1 105 0
- 341 007c 2C9A      		sbi 0x5,4
- 107:main.c        ****         PORTB &= ~_BV(ENA);// OFF the enable bit
- 342               		.loc 1 107 0
- 343 007e 2C98      		cbi 0x5,4
- 108:main.c        ****         putchar('4');
- 344               		.loc 1 108 0
- 345 0080 84E3      		ldi r24,lo8(52)
- 346 0082 90E0      		ldi r25,0
- 347 0084 00C0      		rjmp .L32
- 348               	.L27:
- 112:main.c        ****         PORTB |= _BV(LED); // TODO Test LED ON
- 349               		.loc 1 112 0
- 350 0086 2D9A      		sbi 0x5,5
- 113:main.c        ****         putchar('5');
- 351               		.loc 1 113 0
- 352 0088 85E3      		ldi r24,lo8(53)
- 353 008a 90E0      		ldi r25,0
- 354 008c 00C0      		rjmp .L32
- 355               	.L28:
- 117:main.c        ****         PORTB &= ~_BV(LED); // TODO Test LED OFF
- 356               		.loc 1 117 0
- 357 008e 2D98      		cbi 0x5,5
- 118:main.c        ****         putchar('6');
- 358               		.loc 1 118 0
- 359 0090 86E3      		ldi r24,lo8(54)
- 360 0092 90E0      		ldi r25,0
- 361 0094 00C0      		rjmp .L32
- 362               	.L22:
- 121:main.c        ****         putchar('0');
- 363               		.loc 1 121 0
- 364 0096 6091 0000 		lds r22,__iob+2
- 365 009a 7091 0000 		lds r23,__iob+2+1
- 366 009e 80E3      		ldi r24,lo8(48)
- 367 00a0 90E0      		ldi r25,0
- 368               	.L32:
- 369 00a2 0E94 0000 		call fputc
- 370               	.LVL17:
- 122:main.c        ****         break;
- 371               		.loc 1 122 0
- 372 00a6 00C0      		rjmp .L31
- 373               	.LFE7:
- 375               		.comm	response_number,2,1
- 376               		.comm	count_dots,2,1
- 377               		.comm	duration,4,1
- 378               	.global	uart_input
- 379               		.data
- 382               	uart_input:
- 383 0000 0000 00   		.zero	3
- 384 0003 01        		.byte	1
- 385 0004 0000 0000 		.zero	4
- 386 0008 0000      		.word	0
- 387 000a 0000      		.word	gs(uart_getchar)
- 388 000c 0000      		.word	0
- 389               	.global	uart_output
- 392               	uart_output:
- 393 000e 0000 00   		.zero	3
- 394 0011 02        		.byte	2
- 395 0012 0000 0000 		.zero	4
- 396 0016 0000      		.word	gs(uart_putchar)
- 397 0018 0000      		.word	0
- 398 001a 0000      		.word	0
- 543               	.Letext0:
- 544               		.file 3 "/usr/lib/gcc/avr/4.7.2/../../../avr/include/stdint.h"
- 545               		.file 4 "/usr/lib/gcc/avr/4.7.2/../../../avr/include/stdio.h"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	uart_putchar
+  18               	uart_putchar:
+  19               	.LFB12:
+  20               	.LM1:
+  21               	.LVL0:
+  22 0000 1F93      		push r17
+  23               	/* prologue: function */
+  24               	/* frame size = 0 */
+  25               	/* stack size = 1 */
+  26               	.L__stack_usage = 1
+  27 0002 182F      		mov r17,r24
+  28               	.LM2:
+  29 0004 8A30      		cpi r24,lo8(10)
+  30 0006 01F4      		brne .L4
+  31               	.LVL1:
+  32               	.LM3:
+  33 0008 8DE0      		ldi r24,lo8(13)
+  34 000a 0E94 0000 		call uart_putchar
+  35               	.LVL2:
+  36               	.L4:
+  37               	.LM4:
+  38 000e 8091 C000 		lds r24,192
+  39 0012 85FF      		sbrs r24,5
+  40 0014 00C0      		rjmp .L4
+  41               	.LM5:
+  42 0016 1093 C600 		sts 198,r17
+  43               	/* epilogue start */
+  44               	.LM6:
+  45 001a 1F91      		pop r17
+  46               	.LVL3:
+  47 001c 0895      		ret
+  48               	.LFE12:
+  50               	.global	uart_getchar
+  52               	uart_getchar:
+  53               	.LFB13:
+  54               	.LM7:
+  55               	/* prologue: function */
+  56               	/* frame size = 0 */
+  57               	/* stack size = 0 */
+  58               	.L__stack_usage = 0
+  59               	.L7:
+  60               	.LM8:
+  61 001e 8091 C000 		lds r24,192
+  62 0022 87FF      		sbrs r24,7
+  63 0024 00C0      		rjmp .L7
+  64               	.LM9:
+  65 0026 8091 C600 		lds r24,198
+  66               	/* epilogue start */
+  67               	.LM10:
+  68 002a 0895      		ret
+  69               	.LFE13:
+  71               	.global	io_init
+  73               	io_init:
+  74               	.LFB9:
+  75               	.LM11:
+  76               	/* prologue: function */
+  77               	/* frame size = 0 */
+  78               	/* stack size = 0 */
+  79               	.L__stack_usage = 0
+  80               	.LM12:
+  81 002c 8CE3      		ldi r24,lo8(60)
+  82 002e 84B9      		out 36-32,r24
+  83               	.LM13:
+  84 0030 84E0      		ldi r24,lo8(4)
+  85 0032 8AB9      		out 42-32,r24
+  86               	/* epilogue start */
+  87               	.LM14:
+  88 0034 0895      		ret
+  89               	.LFE9:
+  91               	.global	pwm_init
+  93               	pwm_init:
+  94               	.LFB10:
+  95               	.LM15:
+  96               	/* prologue: function */
+  97               	/* frame size = 0 */
+  98               	/* stack size = 0 */
+  99               	.L__stack_usage = 0
+ 100               	.LM16:
+ 101 0036 80E1      		ldi r24,lo8(16)
+ 102 0038 8093 8000 		sts 128,r24
+ 103               	.LM17:
+ 104 003c 1092 8900 		sts 137,__zero_reg__
+ 105               	.LM18:
+ 106 0040 89E0      		ldi r24,lo8(9)
+ 107 0042 8093 8100 		sts 129,r24
+ 108               	/* epilogue start */
+ 109               	.LM19:
+ 110 0046 0895      		ret
+ 111               	.LFE10:
+ 113               	.global	shake_sequence
+ 115               	shake_sequence:
+ 116               	.LFB8:
+ 117               	.LM20:
+ 118               	.LVL4:
+ 119 0048 DF93      		push r29
+ 120 004a CF93      		push r28
+ 121 004c 0F92      		push __tmp_reg__
+ 122 004e CDB7      		in r28,__SP_L__
+ 123 0050 DEB7      		in r29,__SP_H__
+ 124               	/* prologue: function */
+ 125               	/* frame size = 1 */
+ 126               	/* stack size = 3 */
+ 127               	.L__stack_usage = 3
+ 128               	.LM21:
+ 129 0052 8983      		std Y+1,r24
+ 130 0054 0E94 0000 		call pwm_init
+ 131               	.LVL5:
+ 132               	.LM22:
+ 133 0058 90E5      		ldi r25,lo8(80)
+ 134 005a 9093 8900 		sts 137,r25
+ 135               	.LM23:
+ 136 005e 9FEF      		ldi r25,lo8(-1)
+ 137 0060 9093 8800 		sts 136,r25
+ 138               	.LM24:
+ 139 0064 2C9A      		sbi 37-32,4
+ 140               	.LVL6:
+ 141               	.LM25:
+ 142 0066 20E0      		ldi r18,lo8(0)
+ 143 0068 30E0      		ldi r19,hi8(0)
+ 144 006a 8981      		ldd r24,Y+1
+ 145 006c 90E0      		ldi r25,lo8(0)
+ 146               	.LM26:
+ 147 006e 68E0      		ldi r22,lo8(8)
+ 148               	.LM27:
+ 149 0070 00C0      		rjmp .L12
+ 150               	.LVL7:
+ 151               	.L17:
+ 152 0072 4FEF      		ldi r20,lo8(-1)
+ 153               	.L14:
+ 154               	.LM28:
+ 155 0074 4093 8900 		sts 137,r20
+ 156               	.LVL8:
+ 157               	.LM29:
+ 158 0078 5FEF      		ldi r21,lo8(-1)
+ 159               	.LVL9:
+ 160               	.L13:
+ 161               	.LM30:
+ 162 007a 5093 8800 		sts 136,r21
+ 163               	.LVL10:
+ 164               	.LBB6:
+ 165               	.LBB7:
+ 166               	.LM31:
+ 167 007e 75E3      		 ldi r23,lo8(53)
+ 168 0080 7A95      	    1:dec r23
+ 169 0082 01F4      	    brne 1b
+ 170 0084 0000      		nop
+ 171               	.LBE7:
+ 172               	.LBE6:
+ 173               	.LM32:
+ 174 0086 5150      		subi r21,lo8(-(-1))
+ 175               	.LVL11:
+ 176 0088 01F4      		brne .L13
+ 177               	.LM33:
+ 178 008a 4150      		subi r20,lo8(-(-1))
+ 179               	.LVL12:
+ 180 008c 4233      		cpi r20,lo8(50)
+ 181 008e 01F4      		brne .L14
+ 182               	.L18:
+ 183               	.LM34:
+ 184 0090 4093 8900 		sts 137,r20
+ 185               	.LVL13:
+ 186               	.LM35:
+ 187 0094 50E0      		ldi r21,lo8(0)
+ 188               	.LVL14:
+ 189               	.L15:
+ 190               	.LM36:
+ 191 0096 5093 8800 		sts 136,r21
+ 192               	.LVL15:
+ 193               	.LBB8:
+ 194               	.LBB9:
+ 195               	.LM37:
+ 196 009a E5E3      		 ldi r30,lo8(53)
+ 197 009c EA95      	    1:dec r30
+ 198 009e 01F4      	    brne 1b
+ 199 00a0 0000      		nop
+ 200               	.LBE9:
+ 201               	.LBE8:
+ 202               	.LM38:
+ 203 00a2 5F5F      		subi r21,lo8(-(1))
+ 204               	.LVL16:
+ 205 00a4 5F3F      		cpi r21,lo8(-1)
+ 206 00a6 01F4      		brne .L15
+ 207               	.LM39:
+ 208 00a8 4F5F      		subi r20,lo8(-(1))
+ 209               	.LVL17:
+ 210 00aa 4F3F      		cpi r20,lo8(-1)
+ 211 00ac 01F4      		brne .L18
+ 212               	.LM40:
+ 213 00ae 45B1      		in r20,37-32
+ 214               	.LVL18:
+ 215 00b0 4627      		eor r20,r22
+ 216 00b2 45B9      		out 37-32,r20
+ 217               	.LM41:
+ 218 00b4 2F5F      		subi r18,lo8(-(1))
+ 219 00b6 3F4F      		sbci r19,hi8(-(1))
+ 220               	.LVL19:
+ 221               	.L12:
+ 222               	.LM42:
+ 223 00b8 2817      		cp r18,r24
+ 224 00ba 3907      		cpc r19,r25
+ 225 00bc 04F0      		brlt .L17
+ 226               	.LM43:
+ 227 00be 5C98      		cbi 43-32,4
+ 228               	.LM44:
+ 229 00c0 8091 8000 		lds r24,128
+ 230 00c4 8F7E      		andi r24,lo8(-17)
+ 231 00c6 8093 8000 		sts 128,r24
+ 232               	/* epilogue start */
+ 233               	.LM45:
+ 234 00ca 0F90      		pop __tmp_reg__
+ 235 00cc CF91      		pop r28
+ 236 00ce DF91      		pop r29
+ 237 00d0 0895      		ret
+ 238               	.LFE8:
+ 240               	.global	set_baud
+ 242               	set_baud:
+ 243               	.LFB11:
+ 244               	.LM46:
+ 245               	/* prologue: function */
+ 246               	/* frame size = 0 */
+ 247               	/* stack size = 0 */
+ 248               	.L__stack_usage = 0
+ 249               	.LM47:
+ 250 00d2 1092 C500 		sts 197,__zero_reg__
+ 251               	.LM48:
+ 252 00d6 87E6      		ldi r24,lo8(103)
+ 253 00d8 8093 C400 		sts 196,r24
+ 254               	.LM49:
+ 255 00dc 88ED      		ldi r24,lo8(-40)
+ 256 00de 8093 C100 		sts 193,r24
+ 257               	.LM50:
+ 258 00e2 86E0      		ldi r24,lo8(6)
+ 259 00e4 8093 C200 		sts 194,r24
+ 260               	.LM51:
+ 261 00e8 E0EC      		ldi r30,lo8(192)
+ 262 00ea F0E0      		ldi r31,hi8(192)
+ 263 00ec 8081      		ld r24,Z
+ 264 00ee 8D7F      		andi r24,lo8(-3)
+ 265 00f0 8083      		st Z,r24
+ 266               	.LM52:
+ 267 00f2 80E0      		ldi r24,lo8(uart_output)
+ 268 00f4 90E0      		ldi r25,hi8(uart_output)
+ 269 00f6 9093 0000 		sts __iob+2+1,r25
+ 270 00fa 8093 0000 		sts __iob+2,r24
+ 271               	.LM53:
+ 272 00fe 80E0      		ldi r24,lo8(uart_input)
+ 273 0100 90E0      		ldi r25,hi8(uart_input)
+ 274 0102 9093 0000 		sts __iob+1,r25
+ 275 0106 8093 0000 		sts __iob,r24
+ 276               	/* epilogue start */
+ 277               	.LM54:
+ 278 010a 0895      		ret
+ 279               	.LFE11:
+ 281               	.global	main
+ 283               	main:
+ 284               	.LFB7:
+ 285               	.LM55:
+ 286               	/* prologue: function */
+ 287               	/* frame size = 0 */
+ 288               	/* stack size = 0 */
+ 289               	.L__stack_usage = 0
+ 290               	.LM56:
+ 291 010c 0E94 0000 		call io_init
+ 292               	.LM57:
+ 293 0110 0E94 0000 		call set_baud
+ 294               	.L35:
+ 295               	.LM58:
+ 296 0114 8091 0000 		lds r24,__iob
+ 297 0118 9091 0000 		lds r25,__iob+1
+ 298 011c 0E94 0000 		call fgetc
+ 299               	.LVL20:
+ 300               	.LM59:
+ 301 0120 8333      		cpi r24,lo8(51)
+ 302 0122 01F0      		breq .L29
+ 303 0124 8433      		cpi r24,lo8(52)
+ 304 0126 00F4      		brsh .L33
+ 305 0128 8133      		cpi r24,lo8(49)
+ 306 012a 01F0      		breq .L27
+ 307 012c 8233      		cpi r24,lo8(50)
+ 308 012e 01F0      		breq .+2
+ 309 0130 00C0      		rjmp .L26
+ 310 0132 00C0      		rjmp .L37
+ 311               	.L33:
+ 312 0134 8533      		cpi r24,lo8(53)
+ 313 0136 01F0      		breq .L31
+ 314 0138 8533      		cpi r24,lo8(53)
+ 315 013a 00F0      		brlo .L30
+ 316 013c 8633      		cpi r24,lo8(54)
+ 317 013e 01F4      		brne .L26
+ 318 0140 00C0      		rjmp .L38
+ 319               	.L27:
+ 320               	.LM60:
+ 321 0142 2C9A      		sbi 37-32,4
+ 322               	.LM61:
+ 323 0144 82E0      		ldi r24,lo8(2)
+ 324               	.LVL21:
+ 325 0146 0E94 0000 		call shake_sequence
+ 326               	.LM62:
+ 327 014a 2C98      		cbi 37-32,4
+ 328               	.LM63:
+ 329 014c 6091 0000 		lds r22,__iob+2
+ 330 0150 7091 0000 		lds r23,__iob+2+1
+ 331 0154 81E3      		ldi r24,lo8(49)
+ 332 0156 90E0      		ldi r25,hi8(49)
+ 333 0158 00C0      		rjmp .L36
+ 334               	.LVL22:
+ 335               	.L37:
+ 336               	.LM64:
+ 337 015a 2C9A      		sbi 37-32,4
+ 338               	.LM65:
+ 339 015c 2C98      		cbi 37-32,4
+ 340               	.LM66:
+ 341 015e 6091 0000 		lds r22,__iob+2
+ 342 0162 7091 0000 		lds r23,__iob+2+1
+ 343 0166 82E3      		ldi r24,lo8(50)
+ 344 0168 90E0      		ldi r25,hi8(50)
+ 345               	.LVL23:
+ 346 016a 00C0      		rjmp .L36
+ 347               	.LVL24:
+ 348               	.L29:
+ 349               	.LM67:
+ 350 016c 2C9A      		sbi 37-32,4
+ 351               	.LM68:
+ 352 016e 2C98      		cbi 37-32,4
+ 353               	.LM69:
+ 354 0170 6091 0000 		lds r22,__iob+2
+ 355 0174 7091 0000 		lds r23,__iob+2+1
+ 356 0178 83E3      		ldi r24,lo8(51)
+ 357 017a 90E0      		ldi r25,hi8(51)
+ 358               	.LVL25:
+ 359 017c 00C0      		rjmp .L36
+ 360               	.LVL26:
+ 361               	.L30:
+ 362               	.LM70:
+ 363 017e 2C9A      		sbi 37-32,4
+ 364               	.LM71:
+ 365 0180 2C98      		cbi 37-32,4
+ 366               	.LM72:
+ 367 0182 6091 0000 		lds r22,__iob+2
+ 368 0186 7091 0000 		lds r23,__iob+2+1
+ 369 018a 84E3      		ldi r24,lo8(52)
+ 370 018c 90E0      		ldi r25,hi8(52)
+ 371               	.LVL27:
+ 372 018e 00C0      		rjmp .L36
+ 373               	.LVL28:
+ 374               	.L31:
+ 375               	.LM73:
+ 376 0190 2D9A      		sbi 37-32,5
+ 377               	.LM74:
+ 378 0192 6091 0000 		lds r22,__iob+2
+ 379 0196 7091 0000 		lds r23,__iob+2+1
+ 380 019a 85E3      		ldi r24,lo8(53)
+ 381 019c 90E0      		ldi r25,hi8(53)
+ 382               	.LVL29:
+ 383 019e 00C0      		rjmp .L36
+ 384               	.LVL30:
+ 385               	.L38:
+ 386               	.LM75:
+ 387 01a0 2D98      		cbi 37-32,5
+ 388               	.LM76:
+ 389 01a2 6091 0000 		lds r22,__iob+2
+ 390 01a6 7091 0000 		lds r23,__iob+2+1
+ 391 01aa 86E3      		ldi r24,lo8(54)
+ 392 01ac 90E0      		ldi r25,hi8(54)
+ 393               	.LVL31:
+ 394 01ae 00C0      		rjmp .L36
+ 395               	.LVL32:
+ 396               	.L26:
+ 397               	.LM77:
+ 398 01b0 6091 0000 		lds r22,__iob+2
+ 399 01b4 7091 0000 		lds r23,__iob+2+1
+ 400 01b8 80E3      		ldi r24,lo8(48)
+ 401 01ba 90E0      		ldi r25,hi8(48)
+ 402               	.LVL33:
+ 403               	.L36:
+ 404 01bc 0E94 0000 		call fputc
+ 405 01c0 00C0      		rjmp .L35
+ 406               	.LFE7:
+ 408               	.global	uart_output
+ 409               		.data
+ 412               	uart_output:
+ 413 0000 0000 00   		.skip 3,0
+ 414 0003 02        		.byte	2
+ 415 0004 0000 0000 		.skip 4,0
+ 416 0008 0000      		.word	gs(uart_putchar)
+ 417 000a 0000      		.word	0
+ 418 000c 0000      		.word	0
+ 419               	.global	uart_input
+ 422               	uart_input:
+ 423 000e 0000 00   		.skip 3,0
+ 424 0011 01        		.byte	1
+ 425 0012 0000 0000 		.skip 4,0
+ 426 0016 0000      		.word	0
+ 427 0018 0000      		.word	gs(uart_getchar)
+ 428 001a 0000      		.word	0
+ 429               		.comm duration,4,1
+ 430               		.comm count_dots,2,1
+ 431               		.comm response_number,2,1
+ 504               	.Letext0:
 DEFINED SYMBOLS
-                            *ABS*:00000000 main.c
-     /tmp/ccHkar1Z.s:2      *ABS*:0000003e __SP_H__
-     /tmp/ccHkar1Z.s:3      *ABS*:0000003d __SP_L__
-     /tmp/ccHkar1Z.s:4      *ABS*:0000003f __SREG__
-     /tmp/ccHkar1Z.s:5      *ABS*:00000000 __tmp_reg__
-     /tmp/ccHkar1Z.s:6      *ABS*:00000001 __zero_reg__
-     /tmp/ccHkar1Z.s:11     .text:00000000 uart_putchar
-     /tmp/ccHkar1Z.s:47     .text:0000001e uart_getchar
-     /tmp/ccHkar1Z.s:68     .text:0000002c io_init
-     /tmp/ccHkar1Z.s:86     .text:00000036 pwm_init
-     /tmp/ccHkar1Z.s:110    .text:00000048 shake_sequence
-     /tmp/ccHkar1Z.s:220    .text:000000ca set_baud
-     /tmp/ccHkar1Z.s:392    .data:0000000e uart_output
-     /tmp/ccHkar1Z.s:382    .data:00000000 uart_input
-     /tmp/ccHkar1Z.s:260    .text.startup:00000000 main
-                            *COM*:00000002 response_number
-                            *COM*:00000002 count_dots
-                            *COM*:00000004 duration
+                            *ABS*:0000000000000000 main.c
+     /tmp/cc8O6656.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/cc8O6656.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/cc8O6656.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/cc8O6656.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/cc8O6656.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc8O6656.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc8O6656.s:18     .text:0000000000000000 uart_putchar
+     /tmp/cc8O6656.s:52     .text:000000000000001e uart_getchar
+     /tmp/cc8O6656.s:73     .text:000000000000002c io_init
+     /tmp/cc8O6656.s:93     .text:0000000000000036 pwm_init
+     /tmp/cc8O6656.s:115    .text:0000000000000048 shake_sequence
+     /tmp/cc8O6656.s:242    .text:00000000000000d2 set_baud
+     /tmp/cc8O6656.s:412    .data:0000000000000000 uart_output
+     /tmp/cc8O6656.s:422    .data:000000000000000e uart_input
+     /tmp/cc8O6656.s:283    .text:000000000000010c main
+                            *COM*:0000000000000004 duration
+                            *COM*:0000000000000002 count_dots
+                            *COM*:0000000000000002 response_number
 
 UNDEFINED SYMBOLS
-printf
 __iob
 fgetc
 fputc
