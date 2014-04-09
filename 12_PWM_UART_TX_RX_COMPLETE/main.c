@@ -23,6 +23,13 @@
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 
 
+//PUL  Portb1
+//DIR  Portb2
+//ENA  Portb3
+
+
+
+
 //Uart setup
 void uart_putchar(char c, FILE *stream);
 char uart_getchar(FILE *stream);
@@ -46,8 +53,7 @@ int main (void) {
   set_baud();
   uint8_t i;
 
-  chat
-    :input;
+  char input;
 
   while (1) {
     input = getchar();
@@ -68,7 +74,8 @@ int main (void) {
 
 void io_init (void) {
   //1 = output, 0 = input
-  DDRB = _BV(PB1) | _BV(PB2);
+  DDRB = _BV(PB1) | _BV(PB2) | _BV(PB3);
+  //     PUL-Portb1 DIR-Portb2 ENA-Portb3
 }
 
 void pwm_init(void) {
