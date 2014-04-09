@@ -61,7 +61,7 @@ void find_first_well(void); // TODO find the pwm speed for Servo.h
 
 //demo sequences
 void demo_centrifuge_stage(void); // TODO add control method for customization
-void demo_full_sequence(void); // TODO align sequence in a function
+void demo_full_sequence(); // TODO align sequence in a function
 //======================
 
 int main (void) {
@@ -144,43 +144,38 @@ void shake_sequence(int number) {
   int i, x;
 
   pwm_init();
-
-  OCR1AH = 0xff;
-  OCR1AL = 0xff;
-
-  PORTD |= _BV(ENA); // ON the enable bit
+  OCR1AH = i;
   for (i = 0; i < number; i++ )
   {
     printf("shake %d \r\n", i);
+    PORTD |= _BV(ENA); // ON the enable bit
     PORTD |= _BV(DIR); // CW direction bit (high is CW)
+    if ( input == '1' ) {
       for (i = 255; i > 0 ; i--) {
         OCR1AL = i;
-        _delay_ms(10);
+        _delay_ms(1000);
       }
-      for (i = 0; i < 255 ; i++) {
-        OCR1AL = i;
-        _delay_ms(10);
-      }
+      OCR1AL = 0;
+    } else {
+      printf("not the right answer");
+    }
   }
-  PORTD &= ~_BV(ENA);// OFF the enable bit
+    PORTD &= ~_BV(ENA);// OFF the enable bit
 }
 
-
-
-/* functions left
 void find_first_well(void); // TODO find the pwm speed for Servo.h 
+
+
+//demo sequences
 void demo_centrifuge_stage(void); // TODO add control method for customization
 void demo_full_sequence(); // TODO align sequence in a function
 //======================
-*/
-
 void io_init (void) {
   //1 = output, 0 = input
   DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
   //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
   DDRD = _BV(OPTO);
   //     Pin 2 of the arduino
-  //     */
 }
 
 void pwm_init(void) {
