@@ -57,6 +57,9 @@ void pwm_init(void);     // Initializes PWM
 void set_baud(void);
 void shake_sequence(uint8_t number);
 void find_first_well(void); // TODO find the pwm speed for Servo.h 
+void servoOn(int direction); // will act like the Servo.h PWM
+void servoOff(void); // will act like the Servo.h PWM
+//long pulseIn(int duration);
 
 
 //demo sequences
@@ -200,7 +203,6 @@ void demo_centrifuge_stage() {
   uint8_t i_high = 255;
   uint8_t i_low  = 0;
 
-  int times;
   for (j = j_high ; j > j_low ; j--) {
     OCR1AH = j;
     for (i = i_high; i > i_low ; i--) {
@@ -217,51 +219,54 @@ void demo_centrifuge_stage() {
   // TODO add control method for customization
 
 void find_first_well() {
-  // TODO find the pwm speed for Servo.h
+  //first we make sure we're on an open space
+  long open_space=0;//automatically intialized to zero
+  uint8_t toggle;
+  servoOn(1);
+  do{
+    _delay_us(100);
+    if ( PIND & _BV(PD2) ) {
+      open_space += 100;
+     // printf("%ld \n", open_space);
+    } else {
+      open_space = 0;
+     // printf("%ld \n", open_space);
+    }
+} while (open_space < 1000000L);
 
-  uint8_t i;
-  uint8_t j;
+}
 
+void servoOn(int direction) {
+  // servo speed is 50Hz
+  // this is approximated by the 16 bit register as 
+  // UCR1AH 78 and UCR1AL 30 ( although this is at 50% duty cycle, thankfully the motor controller is edge triggered
+
+  //TODO do an if statement so this isn't redundant (for cleanup purposes only)
   pwm_init();
 
-  OCR1AH = 0x50;
-  OCR1AL = 0xff;
+  TCCR1B = _BV(WGM02) | _BV(CS11); // the CS stuff sets the prescaler, 010 makes it factor of 2 prescale (second fastest clock 8MHz) WGM02 makes it so that compare register actually does something
 
-  PORTB |= _BV(ENA); // ON the enable bit
-
-  int time_delay = 10000;
-  uint8_t j_high = 77;
-  uint8_t j_low  = 0;
-  uint8_t i_high = 255;
-  uint8_t i_low  = 0;
-
-  TCCR1B = _BV(WGM02) | _BV(CS11); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
-
-    OCR1AH = 78;
-    OCR1AL = 30;
-      _delay_ms(time_delay);
-      printf("Speed is j=%u  i=%u \n", j, i);
-  
-  OCR1AH = j_high;
-  OCR1AL = 120;
-  _delay_ms(4000);
-  PORTD &= ~_BV(ENA);// OFF the enable bit
-  TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
-
-  TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
-/*
-
-  //first we make sure we're on an open space
-  long open_space;
-  do {
-
-
+  //these two numbers give the 50.0Hz frequency simalcrum of Servo.h
+  OCR1AH = 78;
+  OCR1AL = 30;
+  if (direction == 1) {
+    PORTB |= _BV(DIR);
+  } else {
+    PORTB &= ~_BV(DIR);
   }
-*/
+  PORTB |= _BV(ENA); // ON the enable bit
 
 
 }
 
+void servoOff(){
+
+  PORTD &= ~_BV(ENA);// OFF the enable bit
+  TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
+
+  //reset the original prescaler
+  TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
+}
 //long pulseIn()
 //void demo_full_sequence(); ()// TODO align sequence in a function
 
@@ -270,7 +275,7 @@ void io_init (void) {
   //1 = output, 0 = input5
   DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
   //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
-  DDRD = _BV(OPTO);
+  DDRD = ~_BV(OPTO); //OPTO is an input
   //     Pin 2 of the arduino
   //     */
 }
