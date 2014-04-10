@@ -222,7 +222,7 @@ void demo_centrifuge_stage() {
 void find_first_well() {
   //first we make sure we're on an open space
   long open_space=0;//automatically intialized to zero
-  printf("looking for a good start\n");
+  //printf("looking for a good start\n");
   servoOn(1); //1 sets DIR to clockwise
   do {
     _delay_us(100);
@@ -236,9 +236,9 @@ void find_first_well() {
   } while (open_space < 400000L);
 
   servoOff();
-  printf("let us begin our adventure\n");
+//  printf("let us begin our adventure\n");
 
-  _delay_ms(1000);
+  //_delay_ms(1000);
 
   //begin first dot sequence
 
@@ -257,14 +257,14 @@ void find_first_well() {
     }
   }
   servoOff();
-  printf("what do we have here -- a well?\n");
+//  printf("what do we have here -- a well?\n");
 
-  _delay_ms(1000);
+  //_delay_ms(1000);
   go_to_next_dot(); //begin counting dots
 }
 
 void go_to_next_dot() {
-  int count_dots=1;
+  int count_dots=0;
   int last_dot=0;
   long time_limit= 100000L;
 
@@ -273,37 +273,37 @@ void go_to_next_dot() {
   while (last_dot==0) { //wait why 11? oh if misaligned and detects too many dots
     //look for dot, but with a time limit
 
-    printf("there is a dot preresult %d \n", there_is_a_dot);
+//    printf("there is a dot preresult %d \n", there_is_a_dot);
     servoOn(1);
     there_is_a_dot =  check_if_there_is_a_dot_there( 500000L ); //DONE --  replaced this with a check_if_there_is_a_dot_there function
-    servoOff();
-    _delay_ms(1000);
-    printf("there is a dot result %d \n", there_is_a_dot);
-    printf("how many dots %d \n", count_dots);
+    //servoOff();
+    //_delay_ms(1000);
+    //printf("there is a dot result %d \n", there_is_a_dot);
+    //printf("how many dots %d \n", count_dots);
 
     if (there_is_a_dot == 1)
     {
       count_dots++;
-      printf("how many dots %d \n", count_dots);
+      //printf("how many dots %d \n", count_dots);
       //go to space right after the dot then begin the loop again
       go_to_next_edge();
-      printf("how many dots %d \n", count_dots);
+      //printf("how many dots %d \n", count_dots);
     } else if (there_is_a_dot==0) {
       servoOff(); // stop
-      _delay_ms(200); //wait for stop
+      _delay_ms(100); //wait for stop
       servoOn(0); // go reverse
-      printf("is this the real mistake? %d\n", count_dots);
+      //printf("is this the real mistake? %d\n", count_dots);
       check_if_there_is_a_dot_there( 1000000L ); //check for the dot
       servoOff(); // found the dot, next we will go a bit further to center pic
-      _delay_ms(1000);
-      printf("found the edge, hopefully not more dots %d\n", count_dots);
+      //_delay_ms(1000);
+      //printf("found the edge, hopefully not more dots %d\n", count_dots);
 
       servoOn(0);
       _delay_ms(600); // hopefully this is long enough
       servoOff();
       last_dot = 1; //break loop as we found last dot
     } else {
-      printf("count them dots %d\n", count_dots);
+      //printf("count them dots %d\n", count_dots);
     }
   }
 
