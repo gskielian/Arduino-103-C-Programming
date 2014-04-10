@@ -46,6 +46,8 @@ FILE uart_input  = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
 
 
 //unsigned long
+unsigned long duration; //automatically initialized to be zero
+int count_dots; // global counter for dots
 int response_number;
 
 //Define functions
@@ -57,9 +59,8 @@ void shake_sequence(uint8_t number);
 void find_first_well(void); // TODO find the pwm speed for Servo.h 
 void servoOn(int direction); // will act like the Servo.h PWM
 void servoOff(void); // will act like the Servo.h PWM
-void go_to_next_dot(void);
+void gotonext(long inter_dot_duration);
 int check_if_there_is_a_dot_there(long duration_threshold);
-void go_to_next_edge(void);
 //long pulseIn(int duration);
 
 
@@ -222,7 +223,7 @@ void demo_centrifuge_stage() {
 void find_first_well() {
   //first we make sure we're on an open space
   long open_space=0;//automatically intialized to zero
-  printf("looking for a good start\n");
+  uint8_t toggle;
   servoOn(1); //1 sets DIR to clockwise
   do {
     _delay_us(100);
@@ -236,112 +237,77 @@ void find_first_well() {
   } while (open_space < 400000L);
 
   servoOff();
-  printf("let us begin our adventure\n");
-
   _delay_ms(1000);
 
   //begin first dot sequence
 
 
   servoOn(1);
+  open_space = 0;
   int counter = 0;
-  while (counter < 1000)
+  while (counter < 10)
   {
 
     if ( PIND & _BV(PD2) ) {
-      _delay_us(10); // this is what happens if nothing detected. (detection events give low value)
-      counter = 0;
+      _delay_us(100); // this is what happens if nothing detected. (detection events give low value)
     } else {
       counter++;
       //printf("counter is %d \n", counter); // don't use printf it slows everything down ruining timing measurement
     }
   }
   servoOff();
-  printf("what do we have here -- a well?\n");
 
+  count_dots=1; //equiv to count_dots =0; count_dots++
   _delay_ms(1000);
-  go_to_next_dot(); //begin counting dots
+  gotonext(100000); //begin counting dots
 }
 
-void go_to_next_dot() {
-  int count_dots=1;
+void gotonext(long inter_dot_duration) {
   int last_dot=0;
-  long time_limit= 100000L;
+  int num_wells=0;
+  int duration;
+  long time_limit= 400000L;
 
-  int there_is_a_dot=3;
+  int there_is_a_dot;
 
-  while (last_dot==0) { //wait why 11? oh if misaligned and detects too many dots
+  while (last_dot==0 && numdots<11) { //wait why 11? oh if misaligned and detects too many dots
     //look for dot, but with a time limit
 
-    printf("there is a dot preresult %d \n", there_is_a_dot);
     servoOn(1);
-    there_is_a_dot =  check_if_there_is_a_dot_there( 500000L ); //DONE --  replaced this with a check_if_there_is_a_dot_there function
-    servoOff();
-    _delay_ms(1000);
-    printf("there is a dot result %d \n", there_is_a_dot);
-    printf("how many dots %d \n", count_dots);
+    there_is_a_dot =  check_if_there_is_a_dot_there( time_limit ); //DONE --  replaced this with a check_if_there_is_a_dot_there function
 
-    if (there_is_a_dot == 1)
+    if (there_is_a_dot)
     {
       count_dots++;
-      printf("how many dots %d \n", count_dots);
-      //go to space right after the dot then begin the loop again
-      go_to_next_edge();
-      printf("how many dots %d \n", count_dots);
-    } else if (there_is_a_dot==0) {
+    } else {
       servoOff(); // stop
       _delay_ms(200); //wait for stop
       servoOn(0); // go reverse
-      printf("is this the real mistake? %d\n", count_dots);
-      check_if_there_is_a_dot_there( 1000000L ); //check for the dot
-      servoOff(); // found the dot, next we will go a bit further to center pic
-      _delay_ms(1000);
-      printf("found the edge, hopefully not more dots %d\n", count_dots);
+      check_if_there_is_a_dot_there( 2 * time_limit ); //check for the dot
+      servoOff(); // assume we find a dot, after above function returns we stop
+      count_dots = 0; // reset our dot counter
+      num_wells++; // we found one more well
+    }
 
-      servoOn(0);
-      _delay_ms(600); // hopefully this is long enough
-      servoOff();
-      last_dot = 1; //break loop as we found last dot
+    if ( !(PIND & _BV(PD2)) ) { //if no dot. if nothing detected detection gives low value.
+      open_space += 100;
+    }
+    else if (counter <10){
+      counter++;
     } else {
-      printf("count them dots %d\n", count_dots);
+
+      //printf("counter is %d \n", counter);
     }
   }
 
-  // send back the number of dots to pythonSerial.py
-  switch (count_dots) {
-    case 1:
-      printf("%d\r\n", 7);
-      break;
-    case 2:
-      printf("%d\r\n", 8);
-      break;
-    case 3:
-      printf("%d\r\n", 9);
-      break;
-    case 4:
-      printf("%d\r\n", 10);
-      break;
-    default:
-      break;
-  }
-
-  PORTB |= _BV(LED); // TODO Test LED ON
-  _delay_ms(2000); // wait for camera to take photo
-  PORTB &= ~_BV(LED); // TODO Test LED OFF
-  servoOn(1);
-  _delay_ms(1000);
-
-  count_dots = 0; // reset our global dot counter for next well
 }
-
 
 int check_if_there_is_a_dot_there ( long duration_threshold ) {
   int evidence_of_dot = 0;
-  long open_space = 0; //counter for open space
   do {
-    _delay_us(100);
+    _delay_us(10);
     if ( PIND & _BV(PD2) ) {
-      open_space += 100; //more open_space 
+      open_space += 10; //more open_space 
       // printf("%ld \n", open_space);
       evidence_of_dot = 0; //reset counter to filter false positives
     } else {
@@ -356,132 +322,113 @@ int check_if_there_is_a_dot_there ( long duration_threshold ) {
 
 }
 
-void go_to_next_edge() {
+  void servoOn(int direction) {
+    // servo speed is 50Hz
+    // this is approximated by the 16 bit register as 
+    // UCR1AH 78 and UCR1AL 30 ( although this is at 50% duty cycle, thankfully the motor controller is edge triggered
 
-  servoOn(1);
-  int counter = 0;
-  while (counter < 10)
-  {
+    //TODO do an if statement so this isn't redundant (for cleanup purposes only)
+    pwm_init();
 
-    if ( !(PIND & _BV(PD2)) ) {
-      _delay_ms(1); // this is what happens if nothing detected. (detection events give low value)
-      counter = 0;
+    TCCR1B = _BV(WGM02) | _BV(CS11); // the CS stuff sets the prescaler, 010 makes it factor of 2 prescale (second fastest clock 8MHz) WGM02 makes it so that compare register actually does something
+
+    //these two numbers give the 50.0Hz frequency simalcrum of Servo.h
+    OCR1AH = 78;
+    OCR1AL = 30;
+    if (direction == 1) {
+      PORTB |= _BV(DIR);
     } else {
-      counter++;
-      //printf("counter is %d \n", counter); // don't use printf it slows everything down ruining timing measurement
+      PORTB &= ~_BV(DIR);
     }
+    PORTB |= _BV(ENA); // ON the enable bit
+
+
   }
-  servoOff();
 
-}
+  void servoOff(){
 
-void servoOn(int direction) {
-  // servo speed is 50Hz
-  // this is approximated by the 16 bit register as 
-  // UCR1AH 78 and UCR1AL 30 ( although this is at 50% duty cycle, thankfully the motor controller is edge triggered
+    PORTD &= ~_BV(ENA);// OFF the enable bit
+    TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
 
-  //TODO do an if statement so this isn't redundant (for cleanup purposes only)
-  pwm_init();
-
-  TCCR1B = _BV(WGM02) | _BV(CS11); // the CS stuff sets the prescaler, 010 makes it factor of 2 prescale (second fastest clock 8MHz) WGM02 makes it so that compare register actually does something
-
-  //these two numbers give the 50.0Hz frequency simalcrum of Servo.h
-  OCR1AH = 78;
-  OCR1AL = 30;
-  if (direction == 1) {
-    PORTB |= _BV(DIR);
-  } else {
-    PORTB &= ~_BV(DIR);
+    //reset the original prescaler
+    TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
   }
-  PORTB |= _BV(ENA); // ON the enable bit
+  //long pulseIn()
+  //void demo_full_sequence(); ()// TODO align sequence in a function
 
 
-}
-
-void servoOff(){
-
-  PORTD &= ~_BV(ENA);// OFF the enable bit
-  TCCR1A &= ~_BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
-
-  //reset the original prescaler
-  TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
-}
-//long pulseIn()
-//void demo_full_sequence(); ()// TODO align sequence in a function
-
-
-void io_init (void) {
-  //1 = output, 0 = input5
-  DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
-  //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
-  DDRD = ~_BV(OPTO); //OPTO is an input
-  //     Pin 2 of the arduino
-  //     */
-}
-
-void pwm_init(void) {
-  TCCR1A = _BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
-
-  //  (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
-  //  (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
-
-  OCR1AH = 0x00; //this controls the higher half of the 16 bit "TOP" value
-
-
-  TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
-  /*
-  //   (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
-  //    (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
-
-  //there are three waveform-generation-mode bits: WGM03 WGM02 WGM01 WGM00 -- mode 3 (0100) is CTC mode (clear timer on compare match)
-
-  Clock Select Bit Description
-  CS12 CS11 CS10 
-  Description
-  0 0 0 No clock source (Timer/Counter stopped).
-  0 0 1 clkI/O/1 (No prescaling)
-  0 1 0 clkI/O/8 (From prescaler)
-  0 1 1 clkI/O/64 (From prescaler)
-  1 0 0 clkI/O/256 (From prescaler)
-  1 0 1 clkI/O/1024 (From prescaler)
-  1 1 0 External clock source on T1 pin. Clock on falling edge.
-  1 1 1 External clock source on T1 pin. Clock on rising edgputchar
-  */
-}
-
-
-void set_baud(void) {
-  UBRR0H = (BRC >> 8);
-  UBRR0L = BRC;
-
-  //enables rx and tx, page 183 example from documentation
-  UCSR0B = (1 << RXEN0) | (1 << RXCIE0) | (1 << TXEN0 ) | (1 << TXCIE0);
-
-  //198 of documentation, these two bits make it 8-bit
-  UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
-
-  //since we don't use 2x
-  UCSR0A &= ~(_BV(U2X0));
-
-  //redirecting standard out and in to UART -- very clever tuupola
-  stdout = &uart_output;
-  stdin  = &uart_input;
-
-}
-
-void uart_putchar(char c, FILE *stream) {
-  if (c == '\n') {
-    uart_putchar('\r', stream);
+  void io_init (void) {
+    //1 = output, 0 = input5
+    DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
+    //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
+    DDRD = ~_BV(OPTO); //OPTO is an input
+    //     Pin 2 of the arduino
+    //     */
   }
-  loop_until_bit_is_set(UCSR0A, UDRE0);
-  UDR0 = c;
-}
+
+  void pwm_init(void) {
+    TCCR1A = _BV(COM1B0); // COM1B0 indicates COM-pare action toggling OCR1B (which is arduino pin 10) on Compare Match aka PWM.
+
+    //  (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
+    //  (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
+
+    OCR1AH = 0x00; //this controls the higher half of the 16 bit "TOP" value
 
 
-char uart_getchar(FILE *stream) {
-  loop_until_bit_is_set(UCSR0A, RXC0);
-  return UDR0;
-}
+    TCCR1B = _BV(WGM02) | _BV(CS10); // the CS stuff sets the prescaler, 001 makes it no prescale (fastest clock)
+    /*
+    //   (0x81) TCCR1B ICNC1 ICES1 – WGM13 WGM12 CS12 CS11 CS10 136
+    //    (0x80) TCCR1A COM1A1 COM1A0 COM1B1 COM1B0 – – WGM11 WGM10 134
+
+    //there are three waveform-generation-mode bits: WGM03 WGM02 WGM01 WGM00 -- mode 3 (0100) is CTC mode (clear timer on compare match)
+
+    Clock Select Bit Description
+    CS12 CS11 CS10 
+    Description
+    0 0 0 No clock source (Timer/Counter stopped).
+    0 0 1 clkI/O/1 (No prescaling)
+    0 1 0 clkI/O/8 (From prescaler)
+    0 1 1 clkI/O/64 (From prescaler)
+    1 0 0 clkI/O/256 (From prescaler)
+    1 0 1 clkI/O/1024 (From prescaler)
+    1 1 0 External clock source on T1 pin. Clock on falling edge.
+    1 1 1 External clock source on T1 pin. Clock on rising edgputchar
+    */
+  }
+
+
+  void set_baud(void) {
+    UBRR0H = (BRC >> 8);
+    UBRR0L = BRC;
+
+    //enables rx and tx, page 183 example from documentation
+    UCSR0B = (1 << RXEN0) | (1 << RXCIE0) | (1 << TXEN0 ) | (1 << TXCIE0);
+
+    //198 of documentation, these two bits make it 8-bit
+    UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
+
+    //since we don't use 2x
+    UCSR0A &= ~(_BV(U2X0));
+
+    //redirecting standard out and in to UART -- very clever tuupola
+    stdout = &uart_output;
+    stdin  = &uart_input;
+
+  }
+
+  void uart_putchar(char c, FILE *stream) {
+    if (c == '\n') {
+      uart_putchar('\r', stream);
+    }
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0 = c;
+  }
+
+
+  char uart_getchar(FILE *stream) {
+    loop_until_bit_is_set(UCSR0A, RXC0);
+    return UDR0;
+  }
 
 
 
