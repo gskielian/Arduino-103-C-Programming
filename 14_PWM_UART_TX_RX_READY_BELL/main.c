@@ -92,11 +92,7 @@ int main (void) {
       case '0':
         //shake sequence
         spk=0;
-
-        for (spk = 0; spk < 500; spk++) {
-          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
-          _delay_ms(2); // should give around 400Hz
-        }
+        play_ready_beep();
 
         putchar('0');
         break;
@@ -509,3 +505,27 @@ char uart_getchar(FILE *stream) {
 
 
 
+void play_ready_beep() {
+
+        int eighth_note = 120;
+        int quarter_note = eighth_note*2;
+        int half_note = eighth_note*4;
+     //   int whole_note=  eighth_note*8;
+
+        for (spk = 0; spk < eighth_note; spk++) {
+          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
+          _delay_us(2000); // should give around 400Hz
+        }
+        for (spk = 0; spk < eighth_note; spk++) {
+          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
+          _delay_us(1600); // 2000*4/5   = 1600 or perfect third
+        }
+        for (spk = 0; spk < eighth_note; spk++) {
+          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
+          _delay_us(1333); // 2000*4/5*5/6 = 1333 or perfect fifth
+        }
+        for (spk = 0; spk < quarter_note; spk++) {
+          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
+          _delay_us(1000); //2000*4/5*5/6*6/8 = 1000  one octave
+        }
+}
