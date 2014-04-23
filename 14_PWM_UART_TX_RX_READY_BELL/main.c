@@ -67,6 +67,7 @@ void servoOff(void); // will act like the Servo.h PWM
 void go_to_next_dot(void);
 int check_if_there_is_a_dot_there(long duration_threshold);
 void go_to_next_edge(void);
+void play_ready_beep(void);
 //long pulseIn(int duration);
 
 
