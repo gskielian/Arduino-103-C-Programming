@@ -1,0 +1,110 @@
+   1               		.file	"main.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+  15               	.Ltext0:
+  16               	.global	io_init
+  18               	io_init:
+  19               	.LFB7:
+  20               	.LM1:
+  21               	/* prologue: function */
+  22               	/* frame size = 0 */
+  23               	/* stack size = 0 */
+  24               	.L__stack_usage = 0
+  25               	.LM2:
+  26 0000 80E6      		ldi r24,lo8(96)
+  27 0002 8AB9      		out 42-32,r24
+  28               	/* epilogue start */
+  29               	.LM3:
+  30 0004 0895      		ret
+  31               	.LFE7:
+  33               	.global	pwm_init
+  35               	pwm_init:
+  36               	.LFB8:
+  37               	.LM4:
+  38               	/* prologue: function */
+  39               	/* frame size = 0 */
+  40               	/* stack size = 0 */
+  41               	.L__stack_usage = 0
+  42               	.LM5:
+  43 0006 82E5      		ldi r24,lo8(82)
+  44 0008 84BD      		out 68-32,r24
+  45               	.LM6:
+  46 000a 81E0      		ldi r24,lo8(1)
+  47 000c 85BD      		out 69-32,r24
+  48               	.LM7:
+  49 000e 17BC      		out 71-32,__zero_reg__
+  50               	.LM8:
+  51 0010 18BC      		out 72-32,__zero_reg__
+  52               	/* epilogue start */
+  53               	.LM9:
+  54 0012 0895      		ret
+  55               	.LFE8:
+  57               	.global	main
+  59               	main:
+  60               	.LFB6:
+  61               	.LM10:
+  62               	/* prologue: function */
+  63               	/* frame size = 0 */
+  64               	/* stack size = 0 */
+  65               	.L__stack_usage = 0
+  66               	.LBB7:
+  67               	.LBB8:
+  68               	.LM11:
+  69 0014 80E6      		ldi r24,lo8(96)
+  70 0016 8AB9      		out 42-32,r24
+  71               	.LBE8:
+  72               	.LBE7:
+  73               	.LM12:
+  74 0018 0E94 0000 		call pwm_init
+  75               	.L9:
+  76               	.LVL0:
+  77               	.LM13:
+  78 001c 80E0      		ldi r24,lo8(0)
+  79 001e 90E0      		ldi r25,hi8(0)
+  80               	.LVL1:
+  81               	.L8:
+  82               	.LBB9:
+  83               	.LM14:
+  84 0020 87BD      		out 71-32,r24
+  85               	.LVL2:
+  86               	.LBB10:
+  87               	.LBB11:
+  88               	.LM15:
+  89 0022 2FEF      		 ldi r18,lo8(3199999)
+  90 0024 33ED      	    ldi r19,hi8(3199999)
+  91 0026 40E3      	    ldi r20,hlo8(3199999)
+  92 0028 2150      	    1:subi r18,1
+  93 002a 3040      	    sbci r19,0
+  94 002c 4040      	    sbci r20,0
+  95 002e 01F4      	    brne 1b
+  96 0030 00C0      		rjmp .
+  97 0032 0000      		nop
+  98               	.LBE11:
+  99               	.LBE10:
+ 100               	.LM16:
+ 101 0034 0196      		adiw r24,1
+ 102               	.LVL3:
+ 103 0036 8F37      		cpi r24,127
+ 104 0038 9105      		cpc r25,__zero_reg__
+ 105 003a 04F4      		brge .L9
+ 106 003c 00C0      		rjmp .L8
+ 107               	.LBE9:
+ 108               	.LFE6:
+ 150               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/cct74Ddh.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/cct74Ddh.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/cct74Ddh.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/cct74Ddh.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/cct74Ddh.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cct74Ddh.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cct74Ddh.s:18     .text:0000000000000000 io_init
+     /tmp/cct74Ddh.s:35     .text:0000000000000006 pwm_init
+     /tmp/cct74Ddh.s:59     .text:0000000000000014 main
+
+NO UNDEFINED SYMBOLS

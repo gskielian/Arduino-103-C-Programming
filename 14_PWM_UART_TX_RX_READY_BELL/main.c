@@ -93,8 +93,8 @@ int main (void) {
         //shake sequence
         spk=0;
 
-        for (spk = 0; spk < 2000; spk++) {
-          PORTB ^=  _BV(SPEAKER); //toggles an led -- this is really useful!!
+        for (spk = 0; spk < 500; spk++) {
+          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
           _delay_ms(2); // should give around 400Hz
         }
 
@@ -436,7 +436,7 @@ void demo_full_sequence(void) {
 
 void io_init (void) {
   //1 = output, 0 = input5
-  DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED);
+  DDRB = _BV(PUL) | _BV(DIR) | _BV(ENA) | _BV(LED) | _BV(SPEAKER);
   //     PUL-Portb2 DIR-Portb3 ENA-Portb4 LED-light port 5 (13)
   DDRD = ~_BV(OPTO); //OPTO is an input
   //     Pin 2 of the arduino
