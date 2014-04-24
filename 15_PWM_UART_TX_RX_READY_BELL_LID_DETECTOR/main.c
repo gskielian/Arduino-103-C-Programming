@@ -516,7 +516,7 @@ void play_ready_beep() {
 
         int eighth_note = 120;
         int quarter_note = eighth_note*2;
-        int half_note = eighth_note*4;
+//        int half_note = eighth_note*4;
      //   int whole_note=  eighth_note*8;
 
         for (spk = 0; spk < eighth_note; spk++) {
@@ -539,22 +539,25 @@ void play_ready_beep() {
 
 // strategy set external interrupts when doing something dangerous
 // TODO will make sure to release this after dangerous sequences
+// refer to page 72 of the atmel datasheet for register information
+
+// NOTES ABOUT THE MAGNETIC SWITCH
 
 void set_external_interrupts () {
-  DDRD = _BV(LID_DETECTOR);
-  //PORTD = _BV(LID_DETECTOR); // may not be necessary, I forget if the lid detector is active high or active low
+  DDRD &= ~_BV(LID_DETECTOR); //turn pin 3  into an input port
+  PORTD |= _BV(LID_DETECTOR); // we will want to detect an edge or something
 
-  GICR = _BV(INT1); //enable INT1 I assume as not INT0
-  MCUCR = _BV(ISC11) | _BV(ISC10); // need to double check these
+  EIMSK |= _BV(INT1); //enable INT1 for interrupt 1
+  //EICRA |= _BV(ISC11); // will need to create 00 for low level on
 
   sei(); // literally means set external interrupts
 }
 
 
 //external interrupt is programmed to buzz when triggered
-ISR(INT0_vect) {
-        for (spk = 0; spk < 400; spk++) {
-          PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
-          _delay_us(2000); // should give around 400Hz
-        }
+ISR(INT1_vect) {
+  for (spk = 0; spk < 50 ; spk++) {
+    PORTB ^=  _BV(SPEAKER); //bitwise xor that toggles pins-- this is really useful!!
+    _delay_us(2000); // should give around 400Hz
+  }
 }
