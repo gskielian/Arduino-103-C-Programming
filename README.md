@@ -48,10 +48,13 @@ The ATTiny
 
 Ever bothered by how much space your project took?  For many tasks the ATTiny is sufficient to accomplish the goal, as well as greatly reducing battery requirements, while maximizing embeddability.
 
+Learn how to load a bootloader onto an ATTiny, and then program it to create smart embedded technology.
+
 
 Resources:
 ----------
 
-web-app for determining bootloader-burning arguments for the avr-gcc via ISP: http://www.engbedded.com/fusecalc/
+* web-app for determining bootloader-burning arguments for the avr-gcc via ISP: http://www.engbedded.com/fusecalc/
 
-Learn how to load a bootloader onto an ATTiny, and then program it to create smart embedded technology.
+* tutorial for burning arduino bootloader from sparkfun https://learn.sparkfun.com/tutorials/installing-an-arduino-bootloader
+
